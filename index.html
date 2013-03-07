@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Orestes-bloomfilter by DivineTraube</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Orestes-bloomfilter</h1>
+        <p>Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</p>
+
+        <p class="view"><a href="https://github.com/DivineTraube/Orestes-Bloomfilter">View the Project on GitHub <small>DivineTraube/Orestes-Bloomfilter</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Orestes Bloom filter library</h1>
+
+<p>This is a set of Bloom filters we implemented as we found all existing open-source implementations to be lacking in various aspects. This libary takes some inspiration from the <a href="https://github.com/MagnusS/Java-BloomFilter">simple Bloom filter implementation of Magnus Skjegstad</a> and the <a href="https://github.com/igrigorik/bloomfilter-rb">Ruby Bloom filters by Ilya Grigorik</a>.</p>
+
+<p>The Bloom filter is a probabilistic set data structure which is very small. This is achieved by allowing false positives with some probability <em>p</em>. It has an <code>add</code> and <code>contains</code> operation which a both very fast (time complexity <em>O(1)</em>). The Counting Bloom filter is an extension of the Bloom filter with a <code>remove</code> operation at the cost of incurring an additional space overhead for counting. There are many good introductions to Bloom filters: the <a href="http://en.wikipedia.org/wiki/Bloom_filter">Wikipedia article</a> is excellent, and even better is a <a href="http://www.cs.utexas.edu/%7Eyzhang/teaching/cs386m-f8/Readings/im2005b.pdf">survey by Broder and Mitzenmacher</a>. Typical use cases of Bloom filters are content summaries and sets that would usually grow too large in fields such as networking, distributed systems, databases and analytics.</p>
+
+<p>There are 4 types of Bloom filters in the Orestes Bloom filter library:</p>
+
+<ul>
+<li>
+<strong>Bloom filter</strong>, a regular in-memory Java Bloom filter</li>
+<li>
+<strong>Counting Bloom filter</strong>, a Counting Bloom Filter which supports element removal</li>
+<li>
+<strong>Redis Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications</li>
+<li>
+<strong>Redis Counting Bloom Filter</strong>, a Redis-backed, concurrency-safe Counting Bloom filter in two variants: one that holds a pregenerated regular Bloom filter and relies on Redis Lua scripting and one that can be distributed through client side consistent hasing or Redis Cluster</li>
+</ul><h2>Features</h2>
+
+<p>There are a many things we addressed as we sorely missed them in other implementations:</p>
+
+<ul>
+<li>Bloom filter and Counting Bloom filter with compatible interface in both a local and shared variants</li>
+<li>Configuration of all parameters: Bit-Array size <em>m</em>, number of hash functions <em>k</em>, counting bits <em>c</em>
+</li>
+<li>Automatic configuration given the tolerable false positive rate <em>p</em> and expected elements <em>n</em>
+</li>
+<li>Statistics, e.g. what is my current false positive probability?</li>
+<li>Choice among different hash functions: the better (i.e. uniformly distributed) the hash function, the more accurate the Bloom filter but the better the hash function usually the slower it is -&gt; choose from about 10-15  optimized hash functions, e.g. MD5, SHA, Murmur, LCGs, Carter-Wegman etc. or use a custom one</li>
+<li>Operations on the shared Bloom filter need to be fast (single round-trips to Redis per operation and heavy use of pipelining)</li>
+<li>Generation of the Bloom filter is always fast (on-the-fly pregeneration)</li>
+<li>Support of union and intersection</li>
+<li>Implementation of <a href="http://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> and chaining of hash values taking into account the <a href="http://en.wikipedia.org/wiki/Avalanche_effect">avalanche effect</a>: higher hash quality</li>
+<li>Minimal dependencies: the local Bloom filters have none, the Redis Bloom filters need the <a href="https://github.com/xetorthio/jedis">jedis</a> client jar (in  <code>lib</code> folder)</li>
+<li>Concurrency: the shared Bloom filter may be queried and accessed by many applications simultaneously without multi-user anomalies and performance degradation (which is quite difficult for bitwise counters and a pregnerated Bloom filter - but possible)</li>
+</ul><h3>How to use it?</h3>
+
+<h3>Regular Bloom Filter</h3>
+
+<p>The regular Bloom filter is very easy to use. It is the base class of all other Bloom filters. Figure out, how many elements you expect to have in the Bloom filter ( <em>n</em> ) and then which false positive rate is tolerable ( <em>p</em> ).</p>
+
+<div class="highlight"><pre><span class="c1">//Create a Bloom filter that has a false positive rate of 0.1 when containing 1000 elements</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">);</span>
+</pre></div>
+
+<p>The Bloom filter class is generic and will work with any type that implements the <code>toString()</code> method in a sensible way, since that String is what the Bloom filter feeds into its hash functions. The <code>hashCode()</code> method is not used, since it returns integers that normally do not satisfy a uniform distribution of outputs that is essential for the optimal peformance of the Bloom filter. Now lets add something:</p>
+
+<div class="highlight"><pre><span class="c1">//Add a few elements</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Just"</span><span class="o">);</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"a"</span><span class="o">);</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"test."</span><span class="o">);</span>
+</pre></div>
+
+<p>An element which was inserted in a Bloom filter will always be returned as being contained (no false negatives):</p>
+
+<div class="highlight"><pre><span class="c1">//Test if they are contained</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"Just"</span><span class="o">));</span> <span class="c1">//true</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"a"</span><span class="o">));</span> <span class="c1">//true</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"test."</span><span class="o">));</span> <span class="c1">//true</span>
+</pre></div>
+
+<p>Usually non-inserted elements will not be contained:</p>
+
+<div class="highlight"><pre><span class="c1">//Test with a non-existing element</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"WingDangDoodel"</span><span class="o">));</span> <span class="c1">//false</span>
+</pre></div>
+
+<p>If we add enough elements, false positives will start occurring:</p>
+
+<div class="highlight"><pre><span class="c1">//Add 300 elements</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">300</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">element</span> <span class="o">=</span> <span class="s">"Element "</span> <span class="o">+</span> <span class="n">i</span><span class="o">;</span>
+    <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+<span class="o">}</span>   
+<span class="c1">//test for false positives</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">300</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">element</span> <span class="o">=</span> <span class="s">"Element "</span> <span class="o">+</span> <span class="n">i</span><span class="o">;</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">element</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="n">element</span><span class="o">);</span> <span class="c1">//two elements: 440, 669</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>Let's compare this with the expected amount of false positives:</p>
+
+<div class="highlight"><pre><span class="c1">//Compare with the expected amount</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">getFalsePositiveProbability</span><span class="o">(</span><span class="mi">303</span><span class="o">)</span> <span class="o">*</span> <span class="mi">700</span><span class="o">);</span> <span class="c1">//1.74</span>
+</pre></div>
+
+<p>So our two false positives are in line with the expected amount of 1.74.</p>
+
+<p>The Bloom filter can be cleared and cloned:</p>
+
+<div class="highlight"><pre><span class="c1">//Clone the Bloom filter</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+<span class="c1">//Reset it, i.e. delete all elements</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+</pre></div>
+
+<p>Also elements can be added and queried in bulk:</p>
+
+<div class="highlight"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bulk</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="k">new</span> <span class="n">String</span><span class="o">[]</span> <span class="o">{</span> <span class="s">"one"</span><span class="o">,</span> <span class="s">"two"</span><span class="o">,</span> <span class="s">"three"</span> <span class="o">});</span>
+<span class="n">bf</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">bulk</span><span class="o">);</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">containsAll</span><span class="o">(</span><span class="n">bulk</span><span class="o">));</span> <span class="c1">//true</span>
+</pre></div>
+
+<p>To get the best performance for a given use-case the parameters of the bloom filter must be chosen wisely. There are several helpers and constructor overloads to configure the Bloom filter. So for example we could choose the Bloom filter to use 1000 Bits and then use the best number of hash functions for an expected amount of 6666 inserted elements. We choose Murmur as our hash function which is faster than cryptographic hash functions like MD5:</p>
+
+<div class="highlight"><pre><span class="c1">//Create a more customized Bloom filter</span>
+<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">10000</span><span class="o">;</span> <span class="c1">//Bits to use</span>
+<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="o">.</span><span class="na">optimalK</span><span class="o">(</span><span class="mi">6666</span><span class="o">,</span> <span class="n">m</span><span class="o">);</span> <span class="c1">//Optimal number of hash functions given n and m</span>
+<span class="n">HashMethod</span> <span class="n">hash</span> <span class="o">=</span> <span class="n">HashMethod</span><span class="o">.</span><span class="na">Murmur</span><span class="o">;</span> <span class="c1">//The hash function type</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">bf2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="n">m</span><span class="o">,</span> <span class="n">k</span><span class="o">);</span>
+<span class="c1">//Only set the hash function before using the Bloom filter</span>
+<span class="n">bf2</span><span class="o">.</span><span class="na">setHashMethod</span><span class="o">(</span><span class="n">hash</span><span class="o">);</span>
+</pre></div>
+
+<p>Bloom filters allow other cool stuff too. Consider for instance that you collected two Bloom filters which are compatible in their parameters. Now you want to consolidate their elements. This is achieved by ORing the respective Bit-Arrays of the Bloom filters:</p>
+
+<div class="highlight"><pre><span class="c1">//Create two Bloom filters with equal parameters</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">one</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">other</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+<span class="n">one</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
+<span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"that"</span><span class="o">);</span>
+<span class="n">one</span><span class="o">.</span><span class="na">union</span><span class="o">(</span><span class="n">other</span><span class="o">);</span>
+<span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"this"</span><span class="o">));</span> <span class="c1">//true</span>
+<span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"that"</span><span class="o">));</span> <span class="c1">//true</span>
+</pre></div>
+
+<p>The good thing about the <code>union()</code> operation is, that it returns the exact Bloom filter which would have been created, if all elements were inserted in one Bloom filter.</p>
+
+<p>There is a similar <code>intersect</code> operation that ANDs the Bit-Arrays. It does however behave slightly different as it does not return the Bloom filter that only contains the intersection. It guarantees to have all elements of the intersection but the false positive rate might be slightly higher than that of the pure intersection:</p>
+
+<div class="highlight"><pre><span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
+<span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"boggles"</span><span class="o">);</span>
+<span class="n">one</span><span class="o">.</span><span class="na">intersect</span><span class="o">(</span><span class="n">other</span><span class="o">);</span>
+<span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"this"</span><span class="o">));</span> <span class="c1">//true</span>
+<span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"boggles"</span><span class="o">));</span> <span class="c1">//false</span>
+</pre></div>
+
+<h1>License</h1>
+
+<p>This Bloom filter library is published under the very permissive MIT license:</p>
+
+<p>Copyright Felix Gessert and Florian Bücklers. All rights reserved.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/DivineTraube">DivineTraube</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
