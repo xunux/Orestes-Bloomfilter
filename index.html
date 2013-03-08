@@ -1,67 +1,59 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Orestes Bloom Filter Libarary by DivineTraube</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Orestes Bloom Filter Libarary : Library of different Bloom filters for Java with Redis-backing, counting and many hashing options." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Orestes Bloom Filter Libarary</title>
   </head>
+
   <body>
 
-      <header>
-        <h1>Orestes Bloom Filter Libarary</h1>
-        <p>Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</p>
-      </header>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/DivineTraube/Orestes-Bloomfilter">View on GitHub</a>
 
-      <div id="banner">
-        <span id="logo"></span>
+          <h1 id="project_title">Orestes Bloom Filter Libarary</h1>
+          <h2 id="project_tagline">Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</h2>
 
-        <a href="https://github.com/DivineTraube/Orestes-Bloomfilter" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
-      <section>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>Orestes Bloom filter library</h1>
 
 <p>This is a set of Bloom filters we implemented as we found all existing open-source implementations to be lacking in various aspects. This libary takes some inspiration from the <a href="https://github.com/MagnusS/Java-BloomFilter">simple Bloom filter implementation of Magnus Skjegstad</a> and the <a href="https://github.com/igrigorik/bloomfilter-rb">Ruby Bloom filters by Ilya Grigorik</a>.</p>
 
-<p>The Bloom filter is a probabilistic set data structure which is very small. This is achieved by allowing false positives with some probability <em>p</em>. It has an <code>add</code> and <code>contains</code> operation which a both very fast (time complexity <em>O(1)</em>). The Counting Bloom filter is an extension of the Bloom filter with a <code>remove</code> operation at the cost of incurring an additional space overhead for counting. There are many good introductions to Bloom filters: the <a href="http://en.wikipedia.org/wiki/Bloom_filter">Wikipedia article</a> is excellent, and even better is a <a href="http://www.cs.utexas.edu/%7Eyzhang/teaching/cs386m-f8/Readings/im2005b.pdf">survey by Broder and Mitzenmacher</a>. Typical use cases of Bloom filters are content summaries and sets that would usually grow too large in fields such as networking, distributed systems, databases and analytics.</p>
+<p>The Bloom filter is a probabilistic set data structure which is very small. This is achieved by allowing false positives with some probability <em>p</em>. It has an <code>add</code> and <code>contains</code> operation which both are very fast (time complexity <em>O(1)</em>). The Counting Bloom filter is an extension of the Bloom filter with a <code>remove</code> operation at the cost of incurring an additional space overhead for counting. There are many good introductions to Bloom filters: the <a href="http://en.wikipedia.org/wiki/Bloom_filter">Wikipedia article</a> is excellent, and even better is a <a href="http://www.cs.utexas.edu/%7Eyzhang/teaching/cs386m-f8/Readings/im2005b.pdf">survey by Broder and Mitzenmacher</a>. Typical use cases of Bloom filters are content summaries and sets that would usually grow too large in fields such as networking, distributed systems, databases and analytics.</p>
 
 <p>There are 4 types of Bloom filters in the Orestes Bloom filter library:</p>
 
 <ul>
 <li>
-<strong>Bloom filter</strong>, a regular in-memory Java Bloom filter</li>
+<strong>Regular Bloom filter</strong>, a regular in-memory Java Bloom filter (<code>BloomFilter</code>)</li>
 <li>
-<strong>Counting Bloom filter</strong>, a Counting Bloom Filter which supports element removal</li>
+<strong>Counting Bloom filter</strong>, a Counting Bloom Filter which supports element removal (<code>CBloomFilter</code>)</li>
 <li>
-<strong>Redis Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications</li>
+<strong>Redis Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications (<code>BloomFilterRedis</code>)</li>
 <li>
-<strong>Redis Counting Bloom Filter</strong>, a Redis-backed, concurrency-safe Counting Bloom filter in two variants: one that holds a pregenerated regular Bloom filter and relies on Redis Lua scripting and one that can be distributed through client side consistent hasing or Redis Cluster</li>
+<strong>Redis Counting Bloom Filter</strong>, a Redis-backed, concurrency-safe Counting Bloom filter in two variants: one that holds a pregenerated regular Bloom filter and relies on Redis Lua scripting (<code>CBloomFilterRedisBits</code>) and one that can be distributed through client side consistent hasing or Redis Cluster (<code>CBloomFilterRedis</code>)</li>
 </ul><h2>Features</h2>
 
 <p>There are a many things we addressed as we sorely missed them in other implementations:</p>
 
 <ul>
-<li>Bloom filter and Counting Bloom filter with compatible interface in both a local and shared variants</li>
+<li>Bloom filter and Counting Bloom filter in both a local and shared variants with the same interface</li>
 <li>Configuration of all parameters: Bit-Array size <em>m</em>, number of hash functions <em>k</em>, counting bits <em>c</em>
 </li>
 <li>Automatic configuration given the tolerable false positive rate <em>p</em> and expected elements <em>n</em>
@@ -71,10 +63,14 @@
 <li>Operations on the shared Bloom filter need to be fast (single round-trips to Redis per operation and heavy use of pipelining)</li>
 <li>Generation of the Bloom filter is always fast (on-the-fly pregeneration)</li>
 <li>Support of union and intersection</li>
-<li>Implementation of <a href="http://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> and chaining of hash values taking into account the <a href="http://en.wikipedia.org/wiki/Avalanche_effect">avalanche effect</a>: higher hash quality</li>
-<li>Minimal dependencies: the local Bloom filters have none, the Redis Bloom filters need the <a href="https://github.com/xetorthio/jedis">jedis</a> client jar (in  <code>lib</code> folder)</li>
-<li>Concurrency: the shared Bloom filter may be queried and accessed by many applications simultaneously without multi-user anomalies and performance degradation (which is quite difficult for bitwise counters and a pregnerated Bloom filter - but possible)</li>
-</ul><h3>How to use it?</h3>
+<li>Implementation of <a href="http://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> and chaining of hash values taking into account the <a href="http://en.wikipedia.org/wiki/Avalanche_effect">avalanche effect</a> (higher hash quality)</li>
+<li>Minimal dependencies: the local Bloom filters have none, the Redis Bloom filters need the <a href="https://github.com/xetorthio/jedis">jedis</a> client library (in  <code>lib</code> folder)</li>
+<li>Concurrency: the shared Bloom filter can be accessed by many clients simultaneously without multi-user anomalies and performance degradation (which is quite difficult for bitwise counters and a pregnerated Bloom filter - but possible)</li>
+</ul><h2>Getting started</h2>
+
+<p>Download the <code>orestes-bf.jar</code> and add it your classpath. Or checkout the repository and build it using ant: <code>ant build</code>. For the normal Bloom filters it's even sufficient to only copy the source *.java files to your project.</p>
+
+<h2>Usage</h2>
 
 <h3>Regular Bloom Filter</h3>
 
@@ -179,6 +175,8 @@
 <span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"boggles"</span><span class="o">));</span> <span class="c1">//false</span>
 </pre></div>
 
+<h2>Counting Bloom Filter</h2>
+
 <h1>License</h1>
 
 <p>This Bloom filter library is published under the very permissive MIT license:</p>
@@ -202,12 +200,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.</p>
       </section>
-      <footer>
-        <p>Project maintained by <a href="https://github.com/DivineTraube">DivineTraube</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Orestes Bloom Filter Libarary maintained by <a href="https://github.com/DivineTraube">DivineTraube</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
               <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -218,6 +220,7 @@ IN THE SOFTWARE.</p>
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
+
 
   </body>
 </html>
