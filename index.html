@@ -1,45 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Orestes Bloom Filter Libarary by DivineTraube</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
     <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <title>Orestes Bloom Filter Libarary by DivineTraube</title>
   </head>
+
   <body>
+    <div id="container">
+      <div class="inner">
 
-      <header>
-        <h1>Orestes Bloom Filter Libarary</h1>
-        <p>Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</p>
-      </header>
+        <header>
+          <h1>Orestes Bloom Filter Libarary</h1>
+          <h2>Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</h2>
+        </header>
 
-      <div id="banner">
-        <span id="logo"></span>
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/DivineTraube/Orestes-Bloomfilter" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
 
-        <a href="https://github.com/DivineTraube/Orestes-Bloomfilter" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
+        <hr>
 
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
-      <section>
-        <h1>Orestes Bloom filter library</h1>
+        <section id="main_content">
+          <h1>Orestes Bloom filter library</h1>
 
 <p>This is a set of Bloom filters we implemented as we found all existing open-source implementations to be lacking in various aspects. This libary takes some inspiration from the <a href="https://github.com/MagnusS/Java-BloomFilter">simple Bloom filter implementation of Magnus Skjegstad</a> and the <a href="https://github.com/igrigorik/bloomfilter-rb">Ruby Bloom filters by Ilya Grigorik</a>.</p>
 
@@ -65,13 +57,11 @@
 <p>Bloom filters are awesome data structures: <strong>fast <em>and</em> maximally space efficient</strong>.</p>
 
 <div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">urls</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">100</span><span class="n">_000_000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span> <span class="c1">//Expect 100M URLs</span>
-<span class="n">urls</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://github.com"</span><span class="o">)</span> <span class="c1">//Add millions of URLs</span>
-<span class="n">urls</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"http://twitter.com"</span><span class="o">)</span> <span class="c1">//Know in an instant which ones you have or have not seen before</span>
+<span class="n">urls</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://github.com"</span><span class="o">);</span> <span class="c1">//Add millions of URLs</span>
+<span class="n">urls</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"http://twitter.com"</span><span class="o">);</span> <span class="c1">//Know in an instant which ones you have or have not seen before</span>
 </pre></div>
 
-<p>So what's the catch? Bloom filters allow false positive (i.e. URL contained though never added) with some  probability (0.01 in the example). If you can mitigate rare </p>
-
-<p>false positives (false negatives never happen) then Bloom filters are probably for you.</p>
+<p>So what's the catch? Bloom filters allow false positives (i.e. URL contained though never added) with some  probability (0.01 in the example). If you can mitigate rare false positives (false negatives never happen) then Bloom filters are probably for you.</p>
 
 <h2>Features</h2>
 
@@ -340,7 +330,7 @@ intersection. It guarantees to have all elements of the intersection but the fal
 
 <h2>JSON Representation</h2>
 
-<p>To easily transfer a Bloom filter to a client (for instance via an HTTP GET) there is a JSON Converter for the Bloom filters are implemented so that this generation option is very cheap (i.e. just sequntially reading it from memory). It works for all Bloom filters including the ones backed by Redis.</p>
+<p>To easily transfer a Bloom filter to a client (for instance via an HTTP GET) there is a JSON Converter for the Bloom filters. All Bloom filters are implemented so that this generation option is very cheap (i.e. just sequentially reading it from memory). It works for all Bloom filters including the ones backed by Redis.</p>
 
 <div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">50</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">);</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Ululu"</span><span class="o">);</span>
@@ -350,7 +340,7 @@ intersection. It guarantees to have all elements of the intersection but the fal
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"Ululu"</span><span class="o">));</span> <span class="c1">//true</span>
 </pre></div>
 
-<p>JSON is not an ideal format for binary content (Base64 only uses 64 out of 94 possible characters) it's highly interoperable and easy to read which outweighs the slight waste of space. Combining it with a <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">Content-Encoding</a> like gzip usually compensates that.</p>
+<p>JSON is not an ideal format for binary content (Base64 only uses 64 out of 94 possible characters) but it's highly interoperable and easy to read which outweighs the slight waste of space. Combining it with a <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">Content-Encoding</a> like gzip usually compensates the overhead.</p>
 
 <p><a name="a6"></a></p>
 
@@ -516,14 +506,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.</p>
-      </section>
-      <footer>
-        <p>Project maintained by <a href="https://github.com/DivineTraube">DivineTraube</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
-      </footer>
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-              <script type="text/javascript">
+        </section>
+
+        <footer>
+          Orestes Bloom Filter Libarary is maintained by <a href="https://github.com/DivineTraube">DivineTraube</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+                  <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -534,5 +524,7 @@ IN THE SOFTWARE.</p>
             } catch(err) {}
           </script>
 
+      </div>
+    </div>
   </body>
 </html>
