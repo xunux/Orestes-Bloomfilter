@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <title>Orestes Bloom Filter Libarary by DivineTraube</title>
+    <title>Orestes Bloom Filter Libarary by Baqend</title>
   </head>
 
   <body>
@@ -21,46 +21,74 @@
       <div class="inner">
         <h1>Orestes Bloom Filter Libarary</h1>
         <h2>Library of different Bloom filters for Java with Redis-backing, counting and many hashing options.</h2>
-        <a href="https://github.com/DivineTraube/Orestes-Bloomfilter" class="button"><small>View project on</small>GitHub</a>
+        <a href="https://github.com/Baqend/Orestes-Bloomfilter" class="button"><small>View project on</small>GitHub</a>
       </div>
     </header>
 
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1>Orestes Bloom filter library</h1>
+          <h1>
+<a name="orestes-bloom-filter-library-10" class="anchor" href="#orestes-bloom-filter-library-10"><span class="octicon octicon-link"></span></a>Orestes Bloom filter library 1.0</h1>
+
+<p>Version 1.0 is out with a complete rewrite of almost all functionalities and many new ones.</p>
 
 <p>This is a set of Bloom filters we implemented as we found all existing open-source implementations to be lacking in various aspects. This libary takes some inspiration from the <a href="https://github.com/MagnusS/Java-BloomFilter">simple Bloom filter implementation of Magnus Skjegstad</a> and the <a href="https://github.com/igrigorik/bloomfilter-rb">Ruby Bloom filters by Ilya Grigorik</a>.</p>
 
 <p>The Bloom filter is a probabilistic set data structure which is very small. This is achieved by allowing false positives with some probability <em>p</em>. It has an <code>add</code> and <code>contains</code> operation which both are very fast (time complexity <em>O(1)</em>). The Counting Bloom filter is an extension of the Bloom filter with a <code>remove</code> operation at the cost of incurring an additional space overhead for counting. There are many good introductions to Bloom filters: the <a href="http://en.wikipedia.org/wiki/Bloom_filter">Wikipedia article</a> is excellent, and even better is a <a href="http://www.cs.utexas.edu/%7Eyzhang/teaching/cs386m-f8/Readings/im2005b.pdf">survey by Broder and Mitzenmacher</a>. Typical use cases of Bloom filters are content summaries and sets that would usually grow too large in fields such as networking, distributed systems, databases and analytics.</p>
 
-<p>There are 4 types of Bloom filters in the Orestes Bloom filter library:</p>
+<p>There are 4 types of Bloom filters in the Orestes Bloom filter library (see <a href="https://rawgit.com/Baqend/Orestes-Bloomfilter/1.0/dist/doc/index.html">JavaDocs</a>):</p>
 
 <ul>
 <li>
-<strong>Regular Bloom filter</strong>, a regular in-memory Java Bloom filter (<code>BloomFilter</code>)</li>
+<strong>Regular Bloom filter</strong>, a regular in-memory Java Bloom filter (<code>MemoryBloomFilter</code>)</li>
 <li>
-<strong>Counting Bloom filter</strong>, a Counting Bloom Filter which supports element removal (<code>CBloomFilter</code>)</li>
+<strong>Counting Bloom filter</strong>, a Counting Bloom Filter which supports element removal (<code>MemoryCountingBloomFilter</code>)</li>
 <li>
-<strong>Redis Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications (<code>BloomFilterRedis</code>)</li>
+<strong>Redis Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications (<code>RedisBloomFilter</code>)</li>
 <li>
-<strong>Redis Counting Bloom Filter</strong>, a Redis-backed, concurrency-safe Counting Bloom filter in two variants: one that holds a pregenerated regular Bloom filter and relies on Redis Lua scripting (<code>CBloomFilterRedisBits</code>) and one that can be distributed through client side consistent hasing or Redis Cluster (<code>CBloomFilterRedis</code>)</li>
-</ul><h3>Docs</h3>
+<strong>Redis Counting Bloom Filter</strong>, a Redis-backed Bloom filter which can be concurrently used by different applications, it keeps track of the number of keys added to the filter (<code>RedisCountingBloomFilter</code>)</li>
+</ul><h3>
+<a name="docs" class="anchor" href="#docs"><span class="octicon octicon-link"></span></a>Docs</h3>
 
-<p>The Javadocs are online <a href="http://orestes-bloomfilter-docs.s3-website-eu-west-1.amazonaws.com/">here</a> and in the <em>/docs</em> folder of the repository.</p>
+<p>The Javadocs are online <a href="https://rawgit.com/Baqend/Orestes-Bloomfilter/1.0/dist/doc/index.html">here</a> and in the <em>dist/docs</em> folder of the repository.</p>
 
-<h2>Err, Bloom what?</h2>
+<h2>
+<a name="err-bloom-what" class="anchor" href="#err-bloom-what"><span class="octicon octicon-link"></span></a>Err, Bloom what?</h2>
 
 <p>Bloom filters are awesome data structures: <strong>fast <em>and</em> maximally space efficient</strong>.</p>
 
-<div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">urls</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">100</span><span class="n">_000_000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span> <span class="c1">//Expect 100M URLs</span>
+<div class="highlight highlight-java"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">10_000_000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span> <span class="c1">//Expect 10M URLs</span>
 <span class="n">urls</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://github.com"</span><span class="o">);</span> <span class="c1">//Add millions of URLs</span>
 <span class="n">urls</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"http://twitter.com"</span><span class="o">);</span> <span class="c1">//Know in an instant which ones you have or have not seen before</span>
 </pre></div>
 
 <p>So what's the catch? Bloom filters allow false positives (i.e. URL contained though never added) with some  probability (0.01 in the example). If you can mitigate rare false positives (false negatives never happen) then Bloom filters are probably for you.</p>
 
-<h2>Features</h2>
+<h2>
+<a name="new-in-10" class="anchor" href="#new-in-10"><span class="octicon octicon-link"></span></a>New in 1.0</h2>
+
+<ul>
+<li>Bloom filters are now constructed and configured using a comfortable Builder interface, e.g. <code>new FilterBuilder(100,0.01).redisBacked().buildCountingBloomFilter()</code>
+</li>
+<li>All Bloom filters are thread-safe and drastically improved in performance</li>
+<li>Arbitrarily many Bloom filter instances in a single Redis server by using <code>name("myfilter")</code> to distinguish filters</li>
+<li>Existing filter can be loaded or overwritten and be shared from different processes without concurrency anomalies</li>
+<li>New and improved Hash functions: All cryptographic hash functions, Murmur3 and Murmur3 with the <a href="http://www.eecs.harvard.edu/~kirsch/pubs/bbbf/esa06.pdf">Kirsch&amp;Mitzenmacher trick</a>, advanced distribution and performance testing of hash functions</li>
+<li>Redis Bloom filters are much faster and simpler, fixed a very rare race-condition</li>
+<li>Memory and Redis Bloom filters now share a common interface <code>BloomFilter</code> resp. <code>CountingBloomFilter</code> instead of being subclasses</li>
+<li>Extensive JavaDoc documentation, test-coverage increased by a factor of at least 2, cleaner an streamlined (Java 8) design</li>
+<li>Redis read-slaves: allow your Bloom filter to perform reads on slaves to get even higher performance</li>
+<li>Library now available as Maven/Gradle repo and built using Gradle</li>
+<li>Population Estimation: the population of Counting and normal Bloom Filter can now be <a href="http://en.wikipedia.org/wiki/Bloom_filter#Approximating_the_number_of_items_in_a_Bloom_filter">precisely estimated</a>
+</li>
+<li>Frequency Estimation: the frequency/count of elements in Counting Bloom filter can now be estimated using the Minimum-Selection algorithm (known from <a href="http://theory.stanford.edu/~matias/papers/sbf_thesis.pdf">spectral Bloom filters</a>
+</li>
+<li>All add and remove method variants now return whether the element was added/removed resp. what the element's estimated count is</li>
+<li>Redis Bloom filters now use configurable connection pooling and are thus not limited by round-trip times anymore</li>
+<li>The library is now an important component of our Backend-as-a-Service startup <a href="http://baqend.com">Baqend</a> and thus you can expect far more frequent updates. Don't worry, the Bloom filter library will always remain MIT-licensed and open-source!</li>
+</ul><h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
 
 <p>There are a many things we addressed as we sorely missed them in other implementations:</p>
 
@@ -78,53 +106,85 @@
 <li>Implementation of <a href="http://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> and chaining of hash values taking into account the <a href="http://en.wikipedia.org/wiki/Avalanche_effect">avalanche effect</a> (higher hash quality)</li>
 <li>Minimal dependencies: the local Bloom filters have none, the Redis Bloom filters need the <a href="https://github.com/xetorthio/jedis">jedis</a> client library (in  <code>lib</code> folder)</li>
 <li>Concurrency: the shared Bloom filter can be accessed by many clients simultaneously without multi-user anomalies and performance degradation (which is quite difficult for bitwise counters and a pregnerated Bloom filter - but possible)</li>
-</ul><h2>Getting started</h2>
+</ul><h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
-<p>Download the <a href="https://orestes-binaries.s3.amazonaws.com/orestes-bf.jar">orestes-bf.jar</a> and add it your classpath. The jar is also contained in the <em>/build</em> folder of the repository. Or checkout the repository and build it using ant:</p>
+<p>The Bloom filter requires Java 8. Classic way: download the <em>dist.zip</em> from the releases tab and add the jars to your classpath. The jars are also contained in the <em>/dist</em> folder of the repository. Or checkout the repository and build it using gradle:</p>
 
-<pre><code>ant build
+<pre><code>gradle dist
 </code></pre>
 
-<p>This creates two jars in the <em>build</em> folder:</p>
+<p>This creates alle the neccessary jars in the <em>build</em> folder, including the packaged sources.</p>
 
-<ul>
-<li>
-<em>orestes-bf.jar</em>, without dependencies to the Json (-&gt; Json conversion) and Redis library (-&gt; Redis-backed Bloom filters). The additional jars (needed when Json conversion and Redis-backing is required) are in the <em>build/lib</em> folder.</li>
-<li>
-<em>orestes-bf-with-deps.jar</em>, with all dependencies contained in the jar.</li>
-</ul><p>For the normal Bloom filters it's even sufficient to only copy the source *.java files to your project (not recommended).</p>
+<p>The recommended way to include the Bloom filter is via the Maven repo (works for Gradle, Ivy, etc., too), which is currently hosted here on Github:</p>
 
-<h2>Usage</h2>
+<div class="highlight highlight-xml"><pre>    <span class="nt">&lt;dependencies&gt;</span>
+           <span class="nt">&lt;dependency&gt;</span>
+               <span class="nt">&lt;groupId&gt;</span>com.baqend<span class="nt">&lt;/groupId&gt;</span>
+               <span class="nt">&lt;artifactId&gt;</span>bloom-filter<span class="nt">&lt;/artifactId&gt;</span>
+               <span class="nt">&lt;version&gt;</span>1.0<span class="nt">&lt;/version&gt;</span>
+           <span class="nt">&lt;/dependency&gt;</span>
+       <span class="nt">&lt;/dependencies&gt;</span>
+       <span class="nt">&lt;repositories&gt;</span>
+           <span class="nt">&lt;repository&gt;</span>
+               <span class="nt">&lt;id&gt;</span>orestes-bloom-filter<span class="nt">&lt;/id&gt;</span>
+               <span class="nt">&lt;url&gt;</span>https://raw.githubusercontent.com/Baqend/Orestes-Bloomfilter/master/maven-repo<span class="nt">&lt;/url&gt;</span>
+           <span class="nt">&lt;/repository&gt;</span>
+       <span class="nt">&lt;/repositories&gt;</span>
+</pre></div>
+
+<p>or with Gradle:</p>
+
+<div class="highlight highlight-groovy"><pre><span class="n">repositories</span> <span class="o">{</span>
+    <span class="n">maven</span> <span class="o">{</span>
+        <span class="n">url</span> <span class="s1">'https://raw.githubusercontent.com/Baqend/Orestes-Bloomfilter/master/maven-repo'</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">dependencies</span> <span class="o">{</span>
+    <span class="n">compile</span><span class="o">(</span>
+            <span class="s1">'com.baqend:bloom-filter:1.0'</span>
+    <span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>For the normal Bloom filters it's even sufficient to only copy the source *.java files to your project (not recommended).</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
 <ul>
 <li><a href="#a1">Regular Bloom Filter</a></li>
+<li><a href="#builder">The Filter Builder</a></li>
 <li><a href="#a2">Counting Bloom Filter</a></li>
 <li><a href="#a3">Redis Bloom Filters</a></li>
 <li><a href="#a4">Redis Counting Bloom Filters</a></li>
+<li><a href="#slaves">Read Slaves</a></li>
 <li><a href="#a5">JSON Representation</a></li>
 <li><a href="#a6">Hash Functions</a></li>
 <li><a href="#a7">Performance</a></li>
+<li><a href="#overview">Overview of Probabilistic Data Structures</a></li>
 </ul><p><a name="a1"></a></p>
 
-<h3>Regular Bloom Filter</h3>
+<h3>
+<a name="regular-bloom-filter" class="anchor" href="#regular-bloom-filter"><span class="octicon octicon-link"></span></a>Regular Bloom Filter</h3>
 
 <p>The regular Bloom filter is very easy to use. It is the base class of all other Bloom filters. Figure out how many elements you expect to have in the Bloom filter ( <em>n</em> ) and then which false positive rate is tolerable ( <em>p</em> ).</p>
 
-<div class="highlight"><pre><span class="c1">//Create a Bloom filter that has a false positive rate of 0.1 when containing 1000 elements</span>
-<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Create a Bloom filter that has a false positive rate of 0.1 when containing 1000 elements</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span>
 </pre></div>
 
-<p>The Bloom filter class is generic and will work with any type that implements the <code>toString()</code> method in a sensible way, since that String is what the Bloom filter feeds into its hash functions. The <code>hashCode()</code> method is not used, since it returns integers that normally do not satisfy a uniform distribution of outputs that is essential for the optimal peformance of the Bloom filter. Now lets add something:</p>
+<p>The Bloom filter class is generic and will work with any type that implements the <code>toString()</code> method in a sensible way, since that String is what the Bloom filter feeds into its hash functions. The <code>hashCode()</code> method is not used, since in Java it returns integers that normally do not satisfy a uniform distribution of outputs that is essential for the optimal performance of the Bloom filter. Now lets add something:</p>
 
-<div class="highlight"><pre><span class="c1">//Add a few elements</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Add a few elements</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Just"</span><span class="o">);</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"a"</span><span class="o">);</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"test."</span><span class="o">);</span>
 </pre></div>
 
-<p>An element which was inserted in a Bloom filter will always be returned as being contained (no false negatives):</p>
+<p>This can be done from different threads - all Bloom filters are now thread-safe. An element which was inserted in a Bloom filter will always be returned as being contained (no false negatives):</p>
 
-<div class="highlight"><pre><span class="c1">//Test if they are contained</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Test if they are contained</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"Just"</span><span class="o">));</span> <span class="c1">//true</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"a"</span><span class="o">));</span> <span class="c1">//true</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"test."</span><span class="o">));</span> <span class="c1">//true</span>
@@ -132,13 +192,13 @@
 
 <p>Usually non-inserted elements will not be contained:</p>
 
-<div class="highlight"><pre><span class="c1">//Test with a non-existing element</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Test with a non-existing element</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"WingDangDoodel"</span><span class="o">));</span> <span class="c1">//false</span>
 </pre></div>
 
 <p>If we add enough elements, false positives will start occurring:</p>
 
-<div class="highlight"><pre><span class="c1">//Add 300 elements</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Add 300 elements</span>
 <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">300</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
     <span class="n">String</span> <span class="n">element</span> <span class="o">=</span> <span class="s">"Element "</span> <span class="o">+</span> <span class="n">i</span><span class="o">;</span>
     <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
@@ -154,15 +214,23 @@
 
 <p>Let's compare this with the expected amount of false positives:</p>
 
-<div class="highlight"><pre><span class="c1">//Compare with the expected amount</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Compare with the expected amount</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">getFalsePositiveProbability</span><span class="o">(</span><span class="mi">303</span><span class="o">)</span> <span class="o">*</span> <span class="mi">700</span><span class="o">);</span> <span class="c1">//1.74</span>
 </pre></div>
 
 <p>So our two false positives are in line with the expected amount of 1.74.</p>
 
+<p>and lets "estimate" how many elements are in the filter using statistically sound computations of the amount of bits that are one:</p>
+
+<div class="highlight highlight-java"><pre><span class="c1">//Compare with the expected amount</span>
+<span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">getFalsePositiveProbability</span><span class="o">(</span><span class="mi">303</span><span class="o">)</span> <span class="o">*</span> <span class="mi">700</span><span class="o">);</span> <span class="c1">//1.74</span>
+</pre></div>
+
+<p>This estimation is very good, even though the estimation was performed on a "quite full" Bloom filter (remember, we allowed the false positive probability to be 10% for 1000 elements).</p>
+
 <p>The Bloom filter can be cleared and cloned:</p>
 
-<div class="highlight"><pre><span class="c1">//Clone the Bloom filter</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Clone the Bloom filter</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
 <span class="c1">//Reset it, i.e. delete all elements</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
@@ -170,27 +238,28 @@
 
 <p>Also elements can be added and queried in bulk:</p>
 
-<div class="highlight"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bulk</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="k">new</span> <span class="n">String</span><span class="o">[]</span> <span class="o">{</span> <span class="s">"one"</span><span class="o">,</span> <span class="s">"two"</span><span class="o">,</span> <span class="s">"three"</span> <span class="o">});</span>
+<div class="highlight highlight-java"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bulk</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="k">new</span> <span class="n">String</span><span class="o">[]</span> <span class="o">{</span> <span class="s">"one"</span><span class="o">,</span> <span class="s">"two"</span><span class="o">,</span> <span class="s">"three"</span> <span class="o">});</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">bulk</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">containsAll</span><span class="o">(</span><span class="n">bulk</span><span class="o">));</span> <span class="c1">//true</span>
 </pre></div>
 
-<p>To get the best performance for a given use-case the parameters of the bloom filter must be chosen wisely. There are several helpers and constructor overloads to configure the Bloom filter. So for example we could choose the Bloom filter to use 1000 Bits and then use the best number of hash functions for an expected amount of 6666 inserted elements. We choose Murmur as our hash function which is faster than cryptographic hash functions like MD5:</p>
+<p>To get the best performance for a given use-case the parameters of the bloom filter must be chosen wisely. So for example we could choose the Bloom filter to use 1000 Bits and then use the best number of hash functions for an expected amount of 6666 inserted elements. We choose Murmur as our hash function which is faster than cryptographic hash functions like MD5:</p>
 
-<div class="highlight"><pre><span class="c1">//Create a more customized Bloom filter</span>
-<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">10000</span><span class="o">;</span> <span class="c1">//Bits to use</span>
-<span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="o">.</span><span class="na">optimalK</span><span class="o">(</span><span class="mi">6666</span><span class="o">,</span> <span class="n">m</span><span class="o">);</span> <span class="c1">//Optimal number of hash functions given n and m</span>
-<span class="n">HashMethod</span> <span class="n">hash</span> <span class="o">=</span> <span class="n">HashMethod</span><span class="o">.</span><span class="na">Murmur</span><span class="o">;</span> <span class="c1">//The hash function type</span>
-<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">bf2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="n">m</span><span class="o">,</span> <span class="n">k</span><span class="o">);</span>
-<span class="c1">//Only set the hash function before using the Bloom filter</span>
-<span class="n">bf2</span><span class="o">.</span><span class="na">setHashMethod</span><span class="o">(</span><span class="n">hash</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Create a more customized Bloom filter</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">bf2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">expectedElements</span><span class="o">(</span><span class="mi">6666</span><span class="o">)</span> <span class="c1">//elements</span>
+                <span class="o">.</span><span class="na">size</span><span class="o">(</span><span class="mi">10000</span><span class="o">)</span> <span class="c1">//bits to use</span>
+                <span class="o">.</span><span class="na">hashFunction</span><span class="o">(</span><span class="n">HashMethod</span><span class="o">.</span><span class="na">Murmur3</span><span class="o">)</span> <span class="c1">//our hash</span>
+                <span class="o">.</span><span class="na">buildBloomFilter</span><span class="o">();</span>
+<span class="n">print</span><span class="o">(</span><span class="s">"#Hashes:"</span> <span class="o">+</span> <span class="n">bf2</span><span class="o">.</span><span class="na">getHashes</span><span class="o">());</span> <span class="c1">//2</span>
+<span class="n">print</span><span class="o">(</span><span class="n">FilterBuilder</span><span class="o">.</span><span class="na">optimalK</span><span class="o">(</span><span class="mi">6666</span><span class="o">,</span> <span class="mi">10000</span><span class="o">));</span> <span class="c1">//you can also do these calculations yourself</span>
 </pre></div>
 
 <p>Bloom filters allow other cool stuff too. Consider for instance that you collected two Bloom filters which are compatible in their parameters. Now you want to consolidate their elements. This is achieved by ORing the respective Bit-Arrays of the Bloom filters:</p>
 
-<div class="highlight"><pre><span class="c1">//Create two Bloom filters with equal parameters</span>
-<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">one</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
-<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">other</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Create two Bloom filters with equal parameters</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">one</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">other</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">100</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span>
 <span class="n">one</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
 <span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"that"</span><span class="o">);</span>
 <span class="n">one</span><span class="o">.</span><span class="na">union</span><span class="o">(</span><span class="n">other</span><span class="o">);</span>
@@ -198,25 +267,34 @@
 <span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"that"</span><span class="o">));</span> <span class="c1">//true</span>
 </pre></div>
 
-<p>The good thing about the <code>union()</code> operation is, that it returns the exact Bloom filter which would have been created, if all elements were inserted in one Bloom filter. There is a similar <code>intersect</code> operation that ANDs the Bit-Arrays. It does however behave slightly different as it does not return the Bloom filter that only contains the 
+<p>The good thing about the <code>union()</code> operation is, that it returns the exact Bloom filter which would have been created, if all elements were inserted in one Bloom filter from the get-go. There is a similar <code>intersect</code> operation that ANDs the Bit-Arrays. It does however behave slightly different as it does not return the Bloom filter that only contains the 
 intersection. It guarantees to have all elements of the intersection but the false positive rate might be slightly higher than that of the pure intersection:</p>
 
-<div class="highlight"><pre><span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
 <span class="n">other</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"boggles"</span><span class="o">);</span>
 <span class="n">one</span><span class="o">.</span><span class="na">intersect</span><span class="o">(</span><span class="n">other</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"this"</span><span class="o">));</span> <span class="c1">//true</span>
 <span class="n">print</span><span class="o">(</span><span class="n">one</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"boggles"</span><span class="o">));</span> <span class="c1">//false</span>
 </pre></div>
 
+<p><a name="builder"></a></p>
+
+<h3>
+<a name="the-filter-builder" class="anchor" href="#the-filter-builder"><span class="octicon octicon-link"></span></a>The Filter Builder</h3>
+
+<p>The <code>FilterBuilder</code> is used to configure Bloom filters before constructing them. It will try to infer and compute any missing parameters optimally and preconfigured with sensible defaults (documented in its JavaDoc). For instance if you only specified the number of expected elements and the false positive probability, it will compute the optimal bit size and number of hash functions.
+To construct a filter, you can either call <code>buildBloomFilter</code> or <code>buildCountingBloomFilter</code> or you can pass the builder to a specific Bloom filter implementation to construct it.</p>
+
 <p><a name="a2"></a></p>
 
-<h2>Counting Bloom Filter</h2>
+<h2>
+<a name="counting-bloom-filter" class="anchor" href="#counting-bloom-filter"><span class="octicon octicon-link"></span></a>Counting Bloom Filter</h2>
 
-<p>The Counting Bloom filter allows object removal. For this purpose it has binary counters instead of simple bits. In <code>CBloomFilter</code> the amount of bits <em>c</em> per counter can be set. If you expect to insert elements only once, the probability of a Bit overflow is very small for <em>c = 4</em> : <em>1.37 * 10^-15 * m</em> for up to <em>n</em> inserted elements  (<a href="http://pages.cs.wisc.edu/%7Ecao/papers/summary-cache/node8.html#SECTION00053000000000000000">details</a>). For most use-cases 4 Bits are the best choice.</p>
+<p>The Counting Bloom filter allows object removal. For this purpose it has binary counters instead of simple bits. In <code>CBloomFilter</code> the amount of bits <em>c</em> per counter can be set. If you expect to insert elements only once, the probability of a Bit overflow is very small for <em>c = 4</em> : <em>1.37 * 10^-15 * m</em> for up to <em>n</em> inserted elements  (<a href="http://pages.cs.wisc.edu/%7Ecao/papers/summary-cache/node8.html#SECTION00053000000000000000">details</a>). For those use-cases 4 bits are usually the most space-efficient choice. The default however is 16 bits, so you don't have to worry about counter overflow with the downside of some space overhead.</p>
 
-<div class="highlight"><pre><span class="c1">//Create a Counting Bloom filter that has a FP rate of 0.01 when 1000 are inserted</span>
-<span class="c1">//and uses 4 Bits for Counting</span>
-<span class="n">CBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">cbf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CBloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">,</span> <span class="mi">4</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Create a Counting Bloom filter that has a FP rate of 0.01 when 1000 are inserted</span>
+<span class="c1">//and uses 4 bits for counting</span>
+<span class="n">CountingBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">cbf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">).</span><span class="na">buildCountingBloomFilter</span><span class="o">();</span>
 <span class="n">cbf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://google.com"</span><span class="o">);</span>
 <span class="n">cbf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://twitter.com"</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">cbf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"http://google.com"</span><span class="o">));</span> <span class="c1">//true</span>
@@ -225,55 +303,56 @@ intersection. It guarantees to have all elements of the intersection but the fal
 
 <p>If you insert one distinct item multiple times, the same counter always get updated so you should pick a higher <em>c</em> so that <em>2^c &gt; inserted_copies</em>. The Counting Bloom Filter extends the normal Bloom Filter by <code>remove</code> and <code>removeAll</code> methods:</p>
 
-<div class="highlight"><pre><span class="n">cbf</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="s">"http://google.com"</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//What only the Counting Bloom filter can do:</span>
+<span class="n">cbf</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="s">"http://google.com"</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">cbf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"http://google.com"</span><span class="o">));</span> <span class="c1">//false</span>
 </pre></div>
 
 <p>To handle overflows (which is unlikely to ever be an issue) you can set an overflow callback:</p>
 
-<div class="highlight"><pre><span class="c1">//Handling Overflows</span>
-<span class="n">cbf</span><span class="o">.</span><span class="na">setOverflowHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">OverflowHandler</span><span class="o">()</span> <span class="o">{</span>
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onOverflow</span><span class="o">()</span> <span class="o">{</span>
-        <span class="n">print</span><span class="o">(</span><span class="s">"Oops, c should better be higher the next time."</span><span class="o">);</span>
-    <span class="o">}</span>
-<span class="o">});</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Use the Memory Bloom filter explicitly (for the overflow method):</span>
+<span class="n">FilterBuilder</span> <span class="n">fb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">).</span><span class="na">countingBits</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+<span class="n">CountingBloomFilterMemory</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CountingBloomFilterMemory</span><span class="o">&lt;&gt;(</span><span class="n">fb</span><span class="o">);</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">setOverflowHandler</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">print</span><span class="o">(</span><span class="s">"ups"</span><span class="o">));</span>
 <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-    <span class="n">print</span><span class="o">(</span><span class="s">"Round "</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
-    <span class="n">cbf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://example.com"</span><span class="o">);</span> <span class="c1">//Causes onOverflow() in Round &gt;= 16</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"Round "</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+        <span class="n">filter</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"http://example.com"</span><span class="o">);</span> <span class="c1">//Causes onOverflow() in Round &gt;= 16</span>
 <span class="o">}</span>
 </pre></div>
 
-<p>To understand the inner workings of the Counting Bloom filter lets actually look at the bits of small filter:</p>
+<p>To understand the inner workings of the Counting Bloom filter lets actually look at the bits of a small filter:</p>
 
-<div class="highlight"><pre><span class="n">CBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">small</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CBloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">3</span><span class="o">,</span> <span class="mf">0.2</span><span class="o">,</span> <span class="mi">4</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="n">CountingBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">small</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mf">0.2</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">countingBits</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">buildCountingBloomFilter</span><span class="o">();</span>
 <span class="n">small</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"One"</span><span class="o">);</span> <span class="n">small</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Two"</span><span class="o">);</span> <span class="n">small</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Three"</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">small</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
 </pre></div>
 
 <p>This gives:</p>
 
-<div class="highlight"><pre>Counting Bloom Filter, Parameters <span class="nv">m</span> <span class="o">=</span> 11, <span class="nv">k</span> <span class="o">=</span> 3, <span class="nv">c</span> <span class="o">=</span> 4
-1 0001
-0 0000
-1 0001
-0 0000
-0 0000
-0 0000
-1 0001
-0 0000
-1 0001
-0 0000
-1 0101
+<div class="highlight highlight-bash"><pre>Bloom Filter Parameters: <span class="nv">size</span> <span class="o">=</span> 11, <span class="nv">hashes</span> <span class="o">=</span> 3, Bits: <span class="o">{</span>0, 2, 6, 8, 10<span class="o">}</span>
+<span class="m">1</span> 0001
+<span class="m">0</span> 0000
+<span class="m">1</span> 0001
+<span class="m">0</span> 0000
+<span class="m">0</span> 0000
+<span class="m">0</span> 0000
+<span class="m">1</span> 0001
+<span class="m">0</span> 0000
+<span class="m">1</span> 0001
+<span class="m">0</span> 0000
+<span class="m">1</span> 0101
 </pre></div>
 
-<p>The Counting Bloom filter thus has a bit size of 11, uses 3 hash functions and 4 bits for counting. The first row is the materialized bit array of all counters &gt; 0. Explcitly saving it makes <code>contains</code> calls fast and generation when transferring the Counting Bloom Filter flattened to a Bloom filter.</p>
+<p>The Counting Bloom filter thus has a bit size of 11, uses 3 hash functions and 4 bits for counting. The first row is the materialized bit array of all counters &gt; 0. Explicitly saving it makes <code>contains</code> calls fast and generation when transferring the Counting Bloom Filter flattened to a Bloom filter.</p>
 
 <p><a name="a3"></a></p>
 
-<h2>Redis Bloom Filters</h2>
+<h2>
+<a name="redis-bloom-filters" class="anchor" href="#redis-bloom-filters"><span class="octicon octicon-link"></span></a>Redis Bloom Filters</h2>
 
-<p>Bloom filters are really intresting beauce they allow very high throughput and minimal latency for adding and querying (and removing). Therefore you might want to use them across the boundaries of a single machine. For instance imagine you run a large scale web site or web service. You have a load balancer distributing the request load over several front-end web servers. You now want to store some information with a natural set structure, say, you want to know if a source IP adress has accessed the requested URL in the past. You could achieve that by either eplicitly storing that information (probably in a database) which will soon be a bottleneck if you serve billions of requests a day. Or you employ a shared Bloom filter and accept a small possibility of false positives.</p>
+<p>Bloom filters are really interesting as they allow very high throughput and minimal latency for adding and querying (and removing). Therefore you might want to use them across the boundaries of a single machine. For instance imagine you run a large scale web site or web service. You have a load balancer distributing the request load over several front-end web servers. You now want to store some information with a natural set structure, say, you want to know if a source IP address has accessed the requested URL in the past. You could achieve that by either explicitly storing that information (probably in a database) which will soon be a bottleneck if you serve billions of requests a day. Or you employ a shared Bloom filter and accept a small possibility of false positives.</p>
 
 <p>These kind of use-cases are ideal for the Redis-backed Bloom filters of this library. They have the same Java Interfaces as the normal and Counting Bloom filter but store the Bloom filter bits in the <a href="http://redis.io">in-memory key-value store Redis</a>.</p>
 
@@ -281,87 +360,125 @@ intersection. It guarantees to have all elements of the intersection but the fal
 
 <ul>
 <li>
-<strong>Concurrent</strong> or <strong>Distributed</strong> Access to on Bloom filter</li>
+<strong>Distributed</strong> Access to on Bloom filter</li>
 <li>
 <strong>Persistence</strong> Requirements (e.g. saving the Bloom filter to disk once every second)</li>
 <li>
-<strong>Scalability</strong> of the Bloom Filter beyond one machine (<a href="http://redis.io/topics/cluster-spec">Redis Cluster</a> or client-side sharding with <em>CBlommFilterRedisSharded</em> which is under development )</li>
+<strong>Scalability</strong> of the Bloom Filter beyond one machine using replication to speed up all read operations</li>
 </ul><p>Using the Redis-backed Bloom filter is straightforward:</p>
 
 <ol>
 <li>Install Redis. This is extremely easy: <a href="http://redis.io/download">see Redis Installation</a>.</li>
 <li>Start Redis with <code>$ redis-server</code>. The server will listen on port 6379.</li>
-<li>In your application (might be on a different machine) instantiate a Redis-backed Bloom filter giving the IP or host name of Redis and its port: <code>new BloomFilterRedis&lt;&gt;("192.168.44.131", 6379, 10000, 0.01);</code>
-</li>
-</ol><p>The Redis-backed Bloom filters have the same Interface as the normal Bloom filters:</p>
+<li>In your application (might be on a different machine) instantiate a Redis-backed Bloom filter giving the IP or host name of Redis and its port and the number of concurrent connections to the FilterBuilder using <code>redisHost</code>, <code>redisPort</code>, <code>redisConnections</code>.</li>
+</ol><p>The Redis-backed Bloom filters have the same interface as the normal Bloom filters and can be constructed through the FilterBuilder, too:</p>
 
-<div class="highlight"><pre><span class="c1">//Redis' IP</span>
-<span class="n">String</span> <span class="n">IP</span> <span class="o">=</span> <span class="s">"192.168.44.131"</span><span class="o">;</span>   
+<div class="highlight highlight-java"><pre><span class="n">String</span> <span class="n">host</span> <span class="o">=</span> <span class="s">"localhost"</span><span class="o">;</span>
+<span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="mi">6379</span><span class="o">;</span>
+<span class="n">String</span> <span class="n">filterName</span> <span class="o">=</span> <span class="s">"normalbloomfilter"</span><span class="o">;</span>
 <span class="c1">//Open a Redis-backed Bloom filter</span>
-<span class="n">BloomFilterRedis</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilterRedis</span><span class="o">&lt;&gt;(</span><span class="n">IP</span><span class="o">,</span> <span class="mi">6379</span><span class="o">,</span> <span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="n">filterName</span><span class="o">)</span> <span class="c1">//use a distinct name</span>
+    <span class="o">.</span><span class="na">redisBacked</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">redisHost</span><span class="o">(</span><span class="n">host</span><span class="o">)</span> <span class="c1">//Default is localhost</span>
+    <span class="o">.</span><span class="na">redisPort</span><span class="o">(</span><span class="n">port</span><span class="o">)</span> <span class="c1">//Default is standard 6379</span>
+    <span class="o">.</span><span class="na">buildBloomFilter</span><span class="o">();</span>
+
 <span class="n">bfr</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"cow"</span><span class="o">);</span>
 
-<span class="c1">//Open a second Redis-backed Bloom filter with a new connection</span>
-<span class="n">BloomFilterRedis</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilterRedis</span><span class="o">&lt;&gt;(</span><span class="n">IP</span><span class="o">,</span> <span class="mi">6379</span><span class="o">,</span> <span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+<span class="c1">//Open the same Bloom filter from anywhere else</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="n">filterName</span><span class="o">)</span> <span class="c1">//load the same filter</span>
+    <span class="o">.</span><span class="na">redisBacked</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">buildBloomFilter</span><span class="o">();</span>
 <span class="n">bfr2</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"bison"</span><span class="o">);</span>
 
 <span class="n">print</span><span class="o">(</span><span class="n">bfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"cow"</span><span class="o">));</span> <span class="c1">//true</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"bison"</span><span class="o">));</span> <span class="c1">//true</span>
 </pre></div>
 
-<p>The Redis-backed Bloom filters are concurrency/thread-safe at the backend. That means you can concurrently insert from any machine without running into anomalies, inconsistencies or lost data. The Redis-backed Bloom filters are implemented using efficient <a href="http://redis.io/commands/getbit">Redis bit arrays</a>. They make heavy use of <a href="http://redis.io/topics/pipelining">pipelining</a> so that every <code>add</code> and <code>contains</code> call only needs one round-trip. This is the most performance critical aspect and usually not found in <a href="https://github.com/igrigorik/bloomfilter-rb">other implementations</a> which need one round-trip for every Bit or worse.</p>
+<p>The Redis-backed Bloom filters are concurrency/thread-safe at the backend as-well-as in Java. That means you can concurrently insert from any machine without running into anomalies, inconsistencies or lost data. The Redis-backed Bloom filters are implemented using efficient <a href="http://redis.io/commands/getbit">Redis bit arrays</a>. They make heavy use of <a href="http://redis.io/topics/pipelining">pipelining</a> so that every <code>add</code> and <code>contains</code> call only needs one round-trip. This is the most performance critical aspect and usually not found in <a href="https://github.com/igrigorik/bloomfilter-rb">other implementations</a> which need one round-trip for every Bit or worse. Moreover, Redis connections are pooled so they are reused, while profiting from concurrent use.</p>
 
-<p>The Redis-backed Bloom filters save their metadata (like number and kind of hash functions) in Redis, too. Thus other clients can easily to connect to a Redis instance that already holds a Bloom filter using <code>new BloomFilterRedis(new Jedis(ip, port))</code> or the similar constructors of <em>CBloomFilterRedis</em> or <em>CBloomFilterRedisBits</em>.</p>
+<p>The Redis-backed Bloom filters save their metadata (like number and kind of hash functions) in Redis, too. Thus other clients can easily to connect to a Redis instance that already holds a Bloom filter with a given name and specify whether to use or overwrite it.</p>
 
 <p><a name="a4"></a></p>
 
-<h2>Redis Counting Bloom Filters</h2>
+<h2>
+<a name="redis-counting-bloom-filters" class="anchor" href="#redis-counting-bloom-filters"><span class="octicon octicon-link"></span></a>Redis Counting Bloom Filters</h2>
 
-<p>There are two kinds of Redis-backed Counting Bloom filters:</p>
+<p>The Redis Counting Bloom filter saves the counters as separate counters in a compact <a href="http://redis.io/commands#hash">Redis hash</a> and keeps the materialized flat Bloom filter as bit array. It is compatatible with Redis 2.4 or higher.</p>
 
-<ul>
-<li>
-<strong>CBloomfilterRedis</strong> saves the counters as separate keys and keeps the materialized flat Bloom filter as bit array. It is comptatible with Redis 2.4 or higher.</li>
-<li>
-<strong>CBloomFilterRedisBits</strong> uses a bit array for the counters. This is much more space efficient (~ factor 10) but needs at least Redis 2.6 as it relies on Lua scripting.</li>
-</ul><div class="highlight"><pre><span class="n">CBloomFilterRedis</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">cbfr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CBloomFilterRedis</span><span class="o">&lt;&gt;(</span><span class="n">IP</span><span class="o">,</span> <span class="mi">6379</span><span class="o">,</span> <span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
-<span class="n">cbfr</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"cow"</span><span class="o">);</span>
-<span class="n">CBloomFilterRedis</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CBloomFilterRedis</span><span class="o">&lt;&gt;(</span><span class="n">IP</span><span class="o">,</span> <span class="mi">6379</span><span class="o">,</span> <span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
-<span class="n">bfr2</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"bison"</span><span class="o">);</span>
-<span class="n">bfr2</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="s">"cow"</span><span class="o">);</span>
-<span class="n">print</span><span class="o">(</span><span class="n">cbfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"bison"</span><span class="o">));</span> <span class="c1">//true</span>
-<span class="n">print</span><span class="o">(</span><span class="n">cbfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"cow"</span><span class="o">));</span> <span class="c1">//false</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Open a Redis-backed Counting Bloom filter</span>
+<span class="n">CountingBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">cbfr</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"myfilter"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">overwriteIfExists</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="c1">//instead of loading it, overwrite it if it's already there</span>
+                <span class="o">.</span><span class="na">redisBacked</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">buildCountingBloomFilter</span><span class="o">();</span>
+        <span class="n">cbfr</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"cow"</span><span class="o">);</span>
+
+        <span class="c1">//Open a second Redis-backed Bloom filter with a new connection</span>
+        <span class="n">CountingBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bfr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">10000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"myfilter"</span><span class="o">)</span> <span class="c1">//this time it will be load it</span>
+                <span class="o">.</span><span class="na">redisBacked</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">buildCountingBloomFilter</span><span class="o">();</span>
+        <span class="n">bfr2</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"bison"</span><span class="o">);</span>
+        <span class="n">bfr2</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="s">"cow"</span><span class="o">);</span>
+
+        <span class="n">print</span><span class="o">(</span><span class="n">cbfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"bison"</span><span class="o">));</span> <span class="c1">//true</span>
+        <span class="n">print</span><span class="o">(</span><span class="n">cbfr</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"cow"</span><span class="o">));</span> <span class="c1">//false</span>
 </pre></div>
 
-<p><em>CBloomFilterRedisBits</em> works similar but you have to provide the counter size <em>c</em>. It uses Lua scripts (stored procedures in Redis) to atomically increment and decrement on a bit array. If you use Redis 2.6 or higher and it runs on one machine, you should choose <em>CBloomFilterRedisBits</em> as it consumes much less memory.</p>
+<p><a name="slaves"></a></p>
+
+<h2>
+<a name="redis-bloom-filter-read-slaves" class="anchor" href="#redis-bloom-filter-read-slaves"><span class="octicon octicon-link"></span></a>Redis Bloom Filter Read Slaves</h2>
+
+<p>If your workloads on the Bloom filter are <em>really</em> high-throughput you can leverage read-slaves. They will be queried for any reading operations: contains, fetching of the bit set, estimation methods (population, count, etc.):</p>
+
+<div class="highlight highlight-java"><pre><span class="n">CountingBloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="n">m</span><span class="o">,</span><span class="n">k</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"slavetest"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">redisBacked</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">addReadSlave</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span> <span class="o">+</span><span class="mi">1</span><span class="o">);</span> <span class="c1">//add slave</span>
+                <span class="o">.</span><span class="na">addReadSlave</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span> <span class="o">+</span><span class="mi">2</span><span class="o">);</span> <span class="c1">//and another</span>
+                <span class="o">.</span><span class="na">buildCountingBloomFilter</span><span class="o">()</span> <span class="c1">//or a normal one</span>
+
+<span class="n">filter</span><span class="o">.</span><span class="na">containsAll</span><span class="o">(</span><span class="n">items</span><span class="o">);</span> <span class="c1">//directed to the slave</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">getEstimatedPopulation</span><span class="o">();</span> <span class="c1">//that one too</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">getEstimatedCount</span><span class="o">(</span><span class="s">"abc"</span><span class="o">);</span> <span class="c1">//dito</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">getBitSet</span><span class="o">();</span> <span class="c1">//and again</span>
+</pre></div>
 
 <p><a name="a5"></a></p>
 
-<h2>JSON Representation</h2>
+<h2>
+<a name="json-representation" class="anchor" href="#json-representation"><span class="octicon octicon-link"></span></a>JSON Representation</h2>
 
 <p>To easily transfer a Bloom filter to a client (for instance via an HTTP GET) there is a JSON Converter for the Bloom filters. All Bloom filters are implemented so that this generation option is very cheap (i.e. just sequentially reading it from memory). It works for all Bloom filters including the ones backed by Redis.</p>
 
-<div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">50</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">().</span><span class="na">expectedElements</span><span class="o">(</span><span class="mi">50</span><span class="o">).</span><span class="na">falsePositiveProbability</span><span class="o">(</span><span class="mf">0.1</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span>
 <span class="n">bf</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">"Ululu"</span><span class="o">);</span>
 <span class="n">JsonElement</span> <span class="n">json</span> <span class="o">=</span> <span class="n">BloomFilterConverter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">bf</span><span class="o">);</span>
-<span class="n">print</span><span class="o">(</span><span class="n">json</span><span class="o">);</span> <span class="c1">//{"m":240,"k":4,"HashMethod":"Cryptographic","CryptographicHashFunction":"MD5","bits":"AAAAEAAAAACAgAAAAAAAAAAAAAAQ"}</span>
+<span class="n">print</span><span class="o">(</span><span class="n">json</span><span class="o">);</span> <span class="c1">//{"size":240,"hashes":4,"HashMethod":"MD5","bits":"AAAAEAAAAACAgAAAAAAAAAAAAAAQ"}</span>
 <span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">otherBf</span> <span class="o">=</span> <span class="n">BloomFilterConverter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">json</span><span class="o">);</span>
 <span class="n">print</span><span class="o">(</span><span class="n">bf</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">"Ululu"</span><span class="o">));</span> <span class="c1">//true</span>
 </pre></div>
 
 <p>JSON is not an ideal format for binary content (Base64 only uses 64 out of 94 possible characters) but it's highly interoperable and easy to read which outweighs the slight waste of space. Combining it with a <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">Content-Encoding</a> like gzip usually compensates the overhead.</p>
 
+<p>Moreover, the Memory Counting Bloom filter can also be serialized and deserialized in the normal Java way.</p>
+
 <p><a name="a6"></a></p>
 
-<h2>Hash Functions</h2>
+<h2>
+<a name="hash-functions" class="anchor" href="#hash-functions"><span class="octicon octicon-link"></span></a>Hash Functions</h2>
 
-<p>There is a detailed description of the available hash functions in the <a href="http://orestes-bloomfilter-docs.s3-website-eu-west-1.amazonaws.com/orestes/bloomfilter/BloomFilter.html#setHashMethod(orestes.bloomfilter.BloomFilter.HashMethod)">Javadocs of the Bloomfilter.setHashMethod method</a> and the Javadocs of the respective hash function implementations. Hash uniformity (i.e. all bits of the Bloom filter are equally likely) is of great importance for the false positive rate. But there is also an inherent tradeoff between hash uniformity and speed of computation. For instance cryptographic hash functions have very good distribution properties but are very CPU intensive. Pseudorandom number generators like the <a href="http://en.wikipedia.org/wiki/Linear_congruential_generator">linear congruential generator</a> are easy to compute but do not have perfectly random outputs but rather certain distribution patterns which for some inputs are notable and for others are negligible. The implementations of all hash functions are part of the BloomFilter class and use tricks like <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> to get the best possible distribution for the respective hash function type.</p>
+<p>There is a detailed description of the available hash functions in the <a href="">Javadocs of the HashMethod enum</a>. Hash uniformity (i.e. all bits of the Bloom filter being equally likely) is of great importance for the false positive rate. But there is also an inherent trade-off between hash uniformity and speed of computation. For instance cryptographic hash functions have very good distribution properties but are very CPU intensive. Pseudorandom number generators like the <a href="http://en.wikipedia.org/wiki/Linear_congruential_generator">linear congruential generator</a> are easy to compute but do not have perfectly random outputs but rather certain distribution patterns which for some inputs are notable and for others are negligible. The implementations of all hash functions are part of the BloomFilter class and use tricks like <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> to get the best possible distribution for the respective hash function type.</p>
 
-<p>Here is a Box plot overview of how good the different hash functions perform (Intel i7 w/ 4 cores, 8 GB RAM). The configuration is 1000000 hashes using k = 5, m = 1000 averaged over 10 runs. </p>
+<p>Here is a Box plot overview of how good the different hash functions perform (Intel i7 with 4 cores, 16 GB RAM). The configuration is 100000 hashes using k = 10, m = 1000 averaged over 20 runs. </p>
 
 <p><img src="https://orestes-bloomfilter-images.s3-external-3.amazonaws.com/hash-speed.png"></p>
 
-<p>Speed of computation doesn't tell much about the quality of hash values. A good hash function is one, which has a discrete uniform distribution of outputs. That means that every bit of the Bloom filter's bit vector is equally likely to bet set. To measure if and how good the hash functions follow a uniform distribution <a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">goodness of fit Chi-Square hypothesis tests</a> are the mathematical instrument of choice.</p>
+<p>Speed of computation doesn't tell anything about the quality of hash values. A good hash function is one, which has a discrete uniform distribution of outputs. That means that every bit of the Bloom filter's bit vector is equally likely to bet set. To measure if and how good the hash functions follow a uniform distribution <a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">goodness of fit Chi-Square hypothesis tests</a> are the mathematical instrument of choice.</p>
 
 <p>Here are some of the results. The inputs are random strings. The p-value is the probability of getting a statistical result that is at least as extreme as the obtained result. So the usual way of hypothesis testing would be rejecting the null hypothesis ("the hash hash function is uniformly distributed") if the p-value is smaller than 0.05. We did 100 Chi-Square Tests:</p>
 
@@ -371,129 +488,206 @@ intersection. It guarantees to have all elements of the intersection but the fal
 
 <p><img src="https://orestes-bloomfilter-images.s3-external-3.amazonaws.com/chi-ints.png"></p>
 
-<p>Here the LCG is too evenly distributed (due to its modulo arithmetics) which is a good thing here, but shows, that LCGs do not have a random uniform distribution. The Carter-Wegman hash function fails because its constants are too small.</p>
+<p>Here the LCG is too evenly distributed (due to its modulo arithmetics) which is a good thing here, but shows, that LCGs do not have a random uniform distribution.</p>
 
-<p>Now a real example of inserting random elements in the Bloom filter, ordered by the false postive rate after  n = 30000 inserted elements using m = 300000 bits:</p>
+<p>The performance optimization of using two hash functions and combining them through the formula hash_i = hash1 + i * hash2 as suggested by <a href="http://www.eecs.harvard.edu/~kirsch/pubs/bbbf/esa06.pdf">Kirsch and Mitzenmacher</a> is theoretically sound as asymptotically hash values are perfectly uniform given to perfect hash values. In practice however, the distribution grows uneven for some inputs (the Cassandra team which uses this trick should have a look at that).</p>
+
+<p>Now a real example of inserting random words in the Bloom filter with the resulting false positive rate after 30000 inserted elements demanding a false positive probability of 0.01:</p>
 
 <table>
 <tr>
-<th>Hashfunction</th>
+<th>Hash function</th>
 <th>Speed  (ms)</th>
-<th>f during insert</th>
-<th>f final</th>
+<th>f during insert (%)</th>
+<th>f final (%)</th>
 </tr>
 <tr>
-<td>SimpleLCG</td>
-<td>26,83</td>
-<td>0,0016</td>
-<td>0,0095</td>
-</tr>
-<tr>
-<td>Cryptographic (MD5)</td>
-<td>247,8</td>
-<td>0,0017</td>
-<td>0,0097</td>
-</tr>
-<tr>
-<td>Java RNG</td>
-<td>37,05</td>
-<td>0,0013</td>
-<td>0,0101</td>
-</tr>
-<tr>
-<td>SecureRNG</td>
-<td>263,2</td>
-<td>0,0013</td>
-<td>0,0101</td>
+<td>RNG</td>
+<td>80.529251</td>
+<td>0,138</td>
+<td>1,024</td>
 </tr>
 <tr>
 <td>CarterWegman</td>
-<td>606,76</td>
-<td>0,0013</td>
-<td>0,0101</td>
+<td>1007.66743</td>
+<td>0,199</td>
+<td>0,956</td>
+</tr>
+<tr>
+<td>SecureRNG</td>
+<td>309.619582</td>
+<td>0,185</td>
+<td>0,902</td>
 </tr>
 <tr>
 <td>CRC32</td>
-<td>114,4</td>
-<td>0,0012</td>
-<td>0,0102</td>
-</tr>
-<tr>
-<td>Cryptographic (SHA-256)</td>
-<td>265,28</td>
-<td>0,0012</td>
-<td>0,0103</td>
-</tr>
-<tr>
-<td>Murmur</td>
-<td>57,94</td>
-<td>0,0017</td>
-<td>0,0104</td>
-</tr>
-<tr>
-<td>Cryptographic (SHA1)</td>
-<td>257,99</td>
-<td>0,0016</td>
-<td>0,0105</td>
-</tr>
-<tr>
-<td>Cryptographic (SHA-512)</td>
-<td>232,22</td>
-<td>0,0015</td>
-<td>0,0111</td>
+<td>67.484589</td>
+<td>0,121</td>
+<td>1,007</td>
 </tr>
 <tr>
 <td>Adler32</td>
-<td>116,73</td>
-<td>0,9282</td>
-<td>0,986</td>
+<td>83.327968</td>
+<td>10,074</td>
+<td>22,539</td>
 </tr>
-</table><p>In summary, cryptographic hash functions offer the most consistent uniform distribution, but are slightly more expensive to compute. LCGs, for instance Java Random, perform quite well in most cases and are cheap to compute. The best compromise seems to be the <a href="https://sites.google.com/site/murmurhash/">Murmur hash function</a>, which has a good distribution and is quite fast to compute.</p>
+<tr>
+<td>Murmur2</td>
+<td>100.20518</td>
+<td>0,175</td>
+<td>1,047</td>
+</tr>
+<tr>
+<td>Murmur3</td>
+<td>100.243902</td>
+<td>0,189</td>
+<td>0,993</td>
+</tr>
+<tr>
+<td>Murmur3KirschMitzenmacher</td>
+<td>45.999454</td>
+<td>0,162</td>
+<td>0,852</td>
+</tr>
+<tr>
+<td>FNVWithLCG</td>
+<td>42.25881</td>
+<td>0,145</td>
+<td>0,960</td>
+</tr>
+<tr>
+<td>MD2</td>
+<td>3635.465565</td>
+<td>0,138</td>
+<td>0,869</td>
+</tr>
+<tr>
+<td>MD5</td>
+<td>207.823532</td>
+<td>0,148</td>
+<td>0,936</td>
+</tr>
+<tr>
+<td>SHA1</td>
+<td>213.755936</td>
+<td>0,189</td>
+<td>0,923</td>
+</tr>
+<tr>
+<td>SHA256</td>
+<td>223.060422</td>
+<td>0,165</td>
+<td>1,054</td>
+</tr>
+<tr>
+<td>SHA384</td>
+<td>176.003345</td>
+<td>0,165</td>
+<td>0,832</td>
+</tr>
+<tr>
+<td>SHA512</td>
+<td>172.444648</td>
+<td>0,152</td>
+<td>1,064</td>
+</tr>
+</table><p>In summary, cryptographic hash functions offer the most consistent uniform distribution, but are slightly more expensive to compute. LCGs, for instance Java Random, perform quite well in most cases and are cheap to compute. The best compromise seems to be the <a href="https://sites.google.com/site/murmurhash/">Murmur 3 hash function</a>, which has a good distribution and is quite fast to compute.</p>
 
 <p>It's also possible to provide a custom hash function:</p>
 
-<div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
-<span class="n">bf</span><span class="o">.</span><span class="na">setCusomHashFunction</span><span class="o">(</span><span class="k">new</span> <span class="n">CustomHashFunction</span><span class="o">()</span> <span class="o">{</span>
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">int</span><span class="o">[]</span> <span class="nf">hash</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">value</span><span class="o">,</span> <span class="kt">int</span> <span class="n">m</span><span class="o">,</span> <span class="kt">int</span> <span class="n">k</span><span class="o">)</span> <span class="o">{</span>
-        <span class="c1">//...</span>
-    <span class="o">}</span>           
-<span class="o">});</span>
+<div class="highlight highlight-java"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">hashFunction</span><span class="o">((</span><span class="n">value</span><span class="o">,</span> <span class="n">m</span><span class="o">,</span> <span class="n">k</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="kc">null</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">buildBloomFilter</span><span class="o">();</span>
 </pre></div>
 
 <p><a name="a7"></a></p>
 
-<h2>Performance</h2>
+<h2>
+<a name="performance" class="anchor" href="#performance"><span class="octicon octicon-link"></span></a>Performance</h2>
 
-<p>To get meaningful results, the Bloom filters should be tested on a machine where there are to be run. The test package contains a benchmark procedure (the test packages relies on the Apache Commons Math library):</p>
+<p>To get meaningful results, the Bloom filters should be tested on machines where they are to be run. The test package contains a benchmark procedure (the test packages relies on the Apache Commons Math library):</p>
 
-<div class="highlight"><pre><span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BloomFilter</span><span class="o">&lt;&gt;(</span><span class="mi">100</span><span class="n">_000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
-<span class="n">BFTests</span><span class="o">.</span><span class="na">benchmark</span><span class="o">(</span><span class="n">bf</span><span class="o">,</span> <span class="s">"My test"</span><span class="o">,</span> <span class="mi">1</span><span class="n">_000_000</span><span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="c1">//Test the performance of the in-memory Bloom filter</span>
+<span class="n">BloomFilter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">bf</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FilterBuilder</span><span class="o">(</span><span class="mi">100_000</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">).</span><span class="na">hashFunction</span><span class="o">(</span><span class="n">HashMethod</span><span class="o">.</span><span class="na">Murmur3</span><span class="o">).</span><span class="na">buildBloomFilter</span><span class="o">();</span>
+<span class="n">MemoryBFTest</span><span class="o">.</span><span class="na">benchmark</span><span class="o">(</span><span class="n">bf</span><span class="o">,</span> <span class="s">"Normal Bloom Filter"</span><span class="o">,</span> <span class="mi">1_000_000</span><span class="o">);</span>
 </pre></div>
 
-<p>This gives over 500000 operations per second (on my machine):</p>
+<p>This gives over 2 Mio operations per second (on my laptop):</p>
 
-<pre><code>My test
-k = 7 p = 0.9952950593251605 n = 1000000 m = 958506
-add(): 1.943s, 514668.0391 elements/s
-addAll(): 1.59s, 628930.8176 elements/s
-contains(), existing: 1.429s, 699790.063 elements/s
-contains(), nonexisting: 1.469s, 680735.194 elements/s
-100000 hash() calls: 0.029s, 3448275.8621 elements/s
-Hash Quality (Chi-Squared-Test): p-value = 0.9487628088638604 , Chi-Squared-Statistic = 956245.1584854313
+<pre><code>Normal Bloom Filter
+hashes = 7 falsePositiveProbability = 3.529780138533512E-281 expectedElements = 1000000 size = 958506
+add(): 0.687s, 1455604.0757 elements/s
+addAll(): 0.47s, 2127659.5745 elements/s
+contains(), existing: 0.472s, 2118644.0678 elements/s
+contains(), nonexisting: 0.445s, 2247191.0112 elements/s
+100000 hash() calls: 0.008s, 1.25E7 elements/s
+Hash Quality (Chi-Squared-Test): p-value = 0.8041807628127277 , Chi-Squared-Statistic = 957318.7388845441
 </code></pre>
 
-<p>The Redis-backed and Counting Bloom filters can also be tested.</p>
+<p>The Redis-backed and Counting Bloom filters can be tested similarly.</p>
 
-<h1>Next steps</h1>
+<p><a name="overview"></a></p>
+
+<h2>
+<a name="overview-of-probabilistic-data-structures" class="anchor" href="#overview-of-probabilistic-data-structures"><span class="octicon octicon-link"></span></a>Overview of Probabilistic Data Structures</h2>
+
+<table>
+<tr>
+<th>Data Structure</th>
+    <th>Set membership: „Have I seen this item before?“</th>
+    <th>Frequency estimation: “How many of this kind have I seen?”</th>
+    <th>Cardinality estimation: “How many distinct items have I seen in total”</th>
+    <th>Item removal</th>
+    <th>Persistence and distributed access</th>
+  </tr>
+<tr>
+<td>Memory Bloom Filter</td>
+    <td>Yes, with configurable false positive probability, O(1)</td>
+    <td>No</td>
+    <td>Yes, O(#bits)</td>
+    <td>No</td>
+    <td>No</td>
+  </tr>
+<tr>
+<td>Memory Counting Bloom Filter</td>
+    <td>Yes, with configurable false positive probability, O(1)</td>
+    <td>Yes (Minimum Selection Algorithm), O(1)</td>
+    <td>Yes, O(#bits)</td>
+    <td>Yes, O(1)</td>
+    <td>No</td>
+  </tr>
+<tr>
+<td>Redis Bloom Filter</td>
+    <td>Yes, with configurable false positive probability, O(1), single roundtrip, scalable through read slaves</td>
+    <td>No</td>
+    <td>Yes, O(#bits), single roundtrip, scalable through read slaves</td>
+    <td>No</td>
+    <td>Yes, configurable Redis persistence &amp; replication</td>
+  </tr>
+<tr>
+<td>Redis Counting Bloom Filter</td>
+    <td>Yes, with configurable false positive probability, O(1) , single roundtrip, scalable through read slaves</td>
+    <td>Yes (Minimum Selection Algorithm), O(1) , single roundtrip, scalable through read slaves</td>
+    <td>Yes, O(#bits), single roundtrip, scalable through read slaves</td>
+    <td>Yes, O(1), in average 2 roundtrips</td>
+    <td>Yes, configurable Redis persistence &amp; replication</td>
+  </tr>
+<tr>
+<td>Other sketches (not part of this lib)</td>
+    <td>Hashsets, Bitvectors</td>
+    <td>Count-Min-Sketch, Count-Mean-Sketch</td>
+    <td>K-Minimum-Values, HyperLogLog</td>
+    <td></td>
+    <td></td>
+  </tr>
+</table><h1>
+<a name="up-next" class="anchor" href="#up-next"><span class="octicon octicon-link"></span></a>Up next</h1>
 
 <ul>
 <li>Compatible Javascript implementation which can consume the JSON Bloom filter representation</li>
-<li>
-<em>CBloomFilterSharded</em> which just uses counters as keys without a materialized bit array. It will have no hotspots and use client-side sharding to distribute keys over an arbitrary amount of Redis instances. The trade-off is unlimited horizontal scalability vs inefficient generation of the flat Bloom filter.</li>
-</ul><h1>Other Bloom filter libraries</h1>
-
-<h1>License</h1>
+<li>Redis Bloom filters that leverage Redis Cluster (once it's ready)</li>
+</ul><h1>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h1>
 
 <p>This Bloom filter library is published under the very permissive MIT license:</p>
 
@@ -518,18 +712,18 @@ IN THE SOFTWARE.</p>
         </section>
 
         <aside id="sidebar">
-          <a href="https://github.com/DivineTraube/Orestes-Bloomfilter/zipball/master" class="button">
+          <a href="https://github.com/Baqend/Orestes-Bloomfilter/zipball/master" class="button">
             <small>Download</small>
             .zip file
           </a>
-          <a href="https://github.com/DivineTraube/Orestes-Bloomfilter/tarball/master" class="button">
+          <a href="https://github.com/Baqend/Orestes-Bloomfilter/tarball/master" class="button">
             <small>Download</small>
             .tar.gz file
           </a>
 
-          <p class="repo-owner"><a href="https://github.com/DivineTraube/Orestes-Bloomfilter"></a> is maintained by <a href="https://github.com/DivineTraube">DivineTraube</a>.</p>
+          <p class="repo-owner"><a href="https://github.com/Baqend/Orestes-Bloomfilter"></a> is maintained by <a href="https://github.com/Baqend">Baqend</a>.</p>
 
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
         </aside>
       </div>
     </div>
