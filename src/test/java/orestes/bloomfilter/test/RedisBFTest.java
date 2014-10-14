@@ -30,227 +30,227 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class RedisBFTest {
 
-	private final boolean	counts;
+    private final boolean counts;
 
-	@Parameterized.Parameters(name = "Redis Bloom Filter test with {0}")
-	public static Collection<Object[]> data() throws Exception {
-		Object[][] data = {
-			{ "normal", false },
-			{ "counting", true }
-		};
-		return Arrays.asList(data);
-	}
+    @Parameterized.Parameters(name = "Redis Bloom Filter test with {0}")
+    public static Collection<Object[]> data() throws Exception {
+        Object[][] data = {
+                {"normal", false},
+                {"counting", true}
+        };
+        return Arrays.asList(data);
+    }
 
-	public RedisBFTest(String type, boolean counts) {
-		this.counts = counts;
-	}
+    public RedisBFTest(String type, boolean counts) {
+        this.counts = counts;
+    }
 
-	private BloomFilter<String> createFilter(String name, int n, double p) {
-		if (counts)
-			return createCountingRedisFilter(name, n, p, HashMethod.MD5);
-		else
-			return createRedisFilter(name, n, p, HashMethod.MD5);
-	}
+    private BloomFilter<String> createFilter(String name, int n, double p) {
+        if(counts)
+            return createCountingRedisFilter(name, n, p, HashMethod.MD5);
+        else
+            return createRedisFilter(name, n, p, HashMethod.MD5);
+    }
 
-	@Test
-	public void testSlaveReads() throws Exception {
-		int m = 1000, k = 10;
-		FilterBuilder fb = new FilterBuilder(m, k)
-			.name("slavetest")
-			.redisBacked(true)
-			.addReadSlave(Helper.host, Helper.port);
-		//.addReadSlave(Helper.host, Helper.port +1);
+    @Test
+    public void testSlaveReads() throws Exception {
+        int m = 1000, k = 10;
+        FilterBuilder fb = new FilterBuilder(m,k)
+                .name("slavetest")
+                .redisBacked(true)
+                .addReadSlave(Helper.host, Helper.port);
+                //.addReadSlave(Helper.host, Helper.port +1);
 
 		BloomFilter<String> filter = counts ? fb.<String> buildCountingBloomFilter() : fb.<String> buildBloomFilter();
 
-		List<String> items = new ArrayList<String>(100);
-		for (int i = 0; i < 100; i++) {
-			String s = "obj" + String.valueOf(i);
-			items.add(s);
-			filter.add(s);
-		}
+        List<String> items = new ArrayList<String>(100);
+        for (int i = 0; i < 100; i++) {
+            String s = "obj" + String.valueOf(i);
+            items.add(s);
+            filter.add(s);
+        }
 
-		//On localhost, there is no perceivable replication lag
-		//Thread.sleep(10);
+        //On localhost, there is no perceivable replication lag
+        //Thread.sleep(10);
 
-		assertTrue(filter.containsAll(items));
-		for (String i : items) {
-			assertTrue(filter.contains(i));
-		}
+        assertTrue(filter.containsAll(items));
+        for (String i : items) {
+            assertTrue(filter.contains(i));
+        }
 
-		filter.remove();
-	}
+        filter.remove();
+    }
 
-	@Test
-	public void overwriteExistingFilter() {
-		int n = 1000;
-		double p = 0.01;
+    @Test
+    public void overwriteExistingFilter() {
+        int n = 1000;
+        double p = 0.01;
 
-		String name = "loadExistingTest";
-		String testString = "simpletest";
-		String testString2 = "simpletest2";
+        String name = "loadExistingTest";
+        String testString = "simpletest";
+        String testString2 = "simpletest2";
 
-		cleanupRedis();
-		BloomFilter<String> first = createFilter(name, n, p);
-		first.add(testString);
-		System.out.println(first.asString());
+        cleanupRedis();
+        BloomFilter<String> first = createFilter(name, n, p);
+        first.add(testString);
+        System.out.println(first.asString());
 
-		BloomFilter<String> loaded = createFilter(name, n, p);
-		System.out.println(loaded.asString());
-		assertFalse(loaded.contains(testString));
-		assertTrue(loaded.getExpectedElements() == n);
-		assertEquals(first.getSize(), loaded.getSize());
-		assertEquals(first.getHashes(), loaded.getHashes());
-		assertEquals(0, Math.round(first.getEstimatedPopulation()));
+        BloomFilter<String> loaded = createFilter(name, n, p);
+        System.out.println(loaded.asString());
+        assertFalse(loaded.contains(testString));
+        assertTrue(loaded.getExpectedElements() == n);
+        assertEquals(first.getSize(), loaded.getSize());
+        assertEquals(first.getHashes(), loaded.getHashes());
+        assertEquals(0, Math.round(first.getEstimatedPopulation()));
 
-		loaded.add(testString2);
+        loaded.add(testString2);
 
-		assertTrue(first.contains(testString2));
+        assertTrue(first.contains(testString2));
 
-		cleanupRedis();
-	}
+        cleanupRedis();
+    }
 
-	@Test
-	public void loadExistingFilter() {
-		int n = 1000;
-		double p = 0.01;
+    @Test
+    public void loadExistingFilter() {
+        int n = 1000;
+        double p = 0.01;
 
-		String name = "loadExistingTest";
-		String testString = "simpletest";
-		String testString2 = "simpletest2";
+        String name = "loadExistingTest";
+        String testString = "simpletest";
+        String testString2 = "simpletest2";
 
-		cleanupRedis();
-		BloomFilter<String> first = createFilter(name, n, p);
-		first.add(testString);
-		System.out.println(first.asString());
+        cleanupRedis();
+        BloomFilter<String> first = createFilter(name, n, p);
+        first.add(testString);
+        System.out.println(first.asString());
 
-		BloomFilter<String> loaded;
-		if (counts)
-			loaded = new FilterBuilder(n, p).name(name).redisBacked(true).buildCountingBloomFilter();
-		else
-			loaded = new FilterBuilder(n, p).name(name).redisBacked(true).buildBloomFilter();
+        BloomFilter<String> loaded;
+        if(counts)
+            loaded = new FilterBuilder(n, p).name(name).redisBacked(true).buildCountingBloomFilter();
+        else
+            loaded = new FilterBuilder(n, p).name(name).redisBacked(true).buildBloomFilter();
 
-		System.out.println(loaded.asString());
-		assertTrue(loaded.contains(testString));
+        System.out.println(loaded.asString());
+        assertTrue(loaded.contains(testString));
 
-		loaded.add(testString2);
+        loaded.add(testString2);
 
-		assertTrue(first.contains(testString2));
+        assertTrue(first.contains(testString2));
 
-		cleanupRedis();
-	}
+        cleanupRedis();
+    }
 
-	@Test
-	public void removeExistingFilter() {
-		int n = 1000;
-		double p = 0.01;
+    @Test
+    public void removeExistingFilter() {
+        int n = 1000;
+        double p = 0.01;
 
-		String name = "loadExistingTest";
-		String testString = "simpletest";
+        String name = "loadExistingTest";
+        String testString = "simpletest";
 
-		cleanupRedis();
-		BloomFilter<String> first = createFilter(name, n, p);
+        cleanupRedis();
+        BloomFilter<String> first = createFilter(name, n, p);
 
-		first.add(testString);
+        first.add(testString);
 
-		first.remove();
+        first.remove();
 
-		assert (!getJedis().exists(name));
+        assert(!getJedis().exists(name));
 
-	}
+    }
 
-	@Test
-	public void bulkContains() {
-		int n = 1000;
-		double p = 0.01;
+    @Test
+    public void bulkContains() {
+        int n = 1000;
+        double p = 0.01;
 
-		String name = "loadExistingTest";
-		String testString = "simpletest";
+        String name = "loadExistingTest";
+        String testString = "simpletest";
 
-		cleanupRedis();
-		BloomFilter<String> first = createFilter(name, n, p);
+        cleanupRedis();
+        BloomFilter<String> first = createFilter(name, n, p);
 
-		first.add(testString);
+        first.add(testString);
 
-		List<String> samples = new ArrayList<>();
-		samples.add("one");
-		samples.add("two");
-		samples.add("three");
-		samples.add("four");
+        List<String> samples = new ArrayList<>();
+        samples.add("one");
+        samples.add("two");
+        samples.add("three");
+        samples.add("four");
 
-		first.addAll(samples);
+        first.addAll(samples);
 
-		samples.add("five");
-		samples.add("six");
-		samples.add(testString);
+        samples.add("five");
+        samples.add("six");
+        samples.add(testString);
 
-		List<Boolean> exists = first.contains(samples);
+        List<Boolean> exists = first.contains(samples);
 
-		assertTrue(exists.get(0)); // "one"
-		assertTrue(exists.get(1)); // "two"
-		assertTrue(exists.get(2)); // "three"
-		assertTrue(exists.get(3)); // "four"
-		assertTrue(!exists.get(4)); // "five"
-		assertTrue(!exists.get(5)); // "six"
-		assertTrue(exists.get(6)); // "simpleTest"
-		ArrayList<String> testPositive = new ArrayList<>();
-		testPositive.add("one");
-		testPositive.add("two");
-		testPositive.add("three");
-		testPositive.add("four");
-		ArrayList<String> testNegative = new ArrayList<>();
-		testNegative.add("five");
-		testNegative.add("six");
-		assertTrue(first.containsAll(testPositive));
-		assertFalse(first.containsAll(testNegative));
-	}
+        assertTrue(exists.get(0));       // "one"
+        assertTrue(exists.get(1));       // "two"
+        assertTrue(exists.get(2));       // "three"
+        assertTrue(exists.get(3));       // "four"
+        assertTrue(!exists.get(4));       // "five"
+        assertTrue(!exists.get(5));       // "six"
+        assertTrue(exists.get(6));       // "simpleTest"
+        ArrayList<String> testPositive = new ArrayList<>();
+        testPositive.add("one");
+        testPositive.add("two");
+        testPositive.add("three");
+        testPositive.add("four");
+        ArrayList<String> testNegative = new ArrayList<>();
+        testNegative.add("five");
+        testNegative.add("six");
+        assertTrue(first.containsAll(testPositive));
+        assertFalse(first.containsAll(testNegative));
+    }
 
-	@Test
-	public void testAsNormalFilter() {
-		BloomFilter<String> first = createFilter("I_m_in_Redis", 10_000, 0.01);
-		first.add("42");
-		BloomFilter<String> second;
-		if (counts)
-			second = ((CountingBloomFilterRedis<String>) first).toMemoryFilter();
-		else
-			second = ((BloomFilterRedis<String>) first).toMemoryFilter();
-		assertTrue(second.contains("42"));
-	}
+    @Test
+    public void testAsNormalFilter() {
+        BloomFilter<String> first = createFilter("I_m_in_Redis", 10_000, 0.01);
+        first.add("42");
+        BloomFilter<String> second;
+        if(counts)
+            second = ((CountingBloomFilterRedis<String>) first).toMemoryFilter();
+        else
+            second = ((BloomFilterRedis<String>) first).toMemoryFilter();
+        assertTrue(second.contains("42"));
+    }
 
-	public static void concurrentBenchmark(List<BloomFilter<String>> bfs, final int opsPerThread) {
-		ExecutorService pool = Executors.newFixedThreadPool(bfs.size());
-		List<Runnable> threads = new ArrayList<>(bfs.size());
-		final List<String> items = new ArrayList<>(opsPerThread);
-		for (int i = 0; i < opsPerThread; i++) {
-			items.add(String.valueOf(i));
-		}
-		for (final BloomFilter<String> bf : bfs) {
-			threads.add(new Runnable() {
+    public static void concurrentBenchmark(List<BloomFilter<String>> bfs, final int opsPerThread) {
+        ExecutorService pool = Executors.newFixedThreadPool(bfs.size());
+        List<Runnable> threads = new ArrayList<>(bfs.size());
+        final List<String> items = new ArrayList<>(opsPerThread);
+        for (int i = 0; i < opsPerThread; i++) {
+            items.add(String.valueOf(i));
+        }
+        for (final BloomFilter<String> bf : bfs) {
+            threads.add(new Runnable() {
 
-				@Override
-				public void run() {
-					for (int i = 0; i < opsPerThread; i++) {
-						bf.add(String.valueOf(i));
-					}
-					for (int i = 0; i < opsPerThread; i++) {
-						bf.contains(String.valueOf(i));
-					}
-					bf.addAll(items);
-				}
-			});
-		}
-		long start = System.nanoTime();
-		for (Runnable r : threads) {
-			pool.execute(r);
-		}
-		pool.shutdown();
-		try {
-			pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-			long end = System.nanoTime();
-			System.out.println("Concurrent Benchmark, " + opsPerThread + " ops * " + bfs.size() + " threads = " + opsPerThread * bfs.size() + " total ops: " + ((double) (end - start)) / 1000000 + " ms");
-		} catch (InterruptedException e) {
-			//...
-		}
-	}
+                @Override
+                public void run() {
+                    for (int i = 0; i < opsPerThread; i++) {
+                        bf.add(String.valueOf(i));
+                    }
+                    for (int i = 0; i < opsPerThread; i++) {
+                        bf.contains(String.valueOf(i));
+                    }
+                    bf.addAll(items);
+                }
+            });
+        }
+        long start = System.nanoTime();
+        for (Runnable r : threads) {
+            pool.execute(r);
+        }
+        pool.shutdown();
+        try {
+            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            long end = System.nanoTime();
+            System.out.println("Concurrent Benchmark, " + opsPerThread + " ops * " + bfs.size() + " threads = " + opsPerThread * bfs.size() + " total ops: " + ((double) (end - start)) / 1000000 + " ms");
+        } catch (InterruptedException e) {
+            //...
+        }
+    }
 
 }

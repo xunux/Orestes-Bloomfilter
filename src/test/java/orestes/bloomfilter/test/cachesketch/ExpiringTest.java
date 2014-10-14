@@ -9,38 +9,38 @@ import org.junit.Test;
 
 public class ExpiringTest {
 
-	private long fromMillis(long millis) {
-		return millis * 1_000_000;
-	}
+    private long fromMillis(long millis) {
+        return millis * 1_000_000;
+    }
 
-	@Test
-	public void addAndLetExpire() throws Exception {
-		FilterBuilder b = new FilterBuilder(1000, 0.05);
-		ExpiringBloomFilter<String> filter = new ExpiringBloomFilter<String>(b);
-		filter.reportRead("1", fromMillis(100));
-		assertTrue(filter.isCached("1"));
-		assertFalse(filter.contains("1"));
-		filter.reportWrite("1");
-		assertTrue(filter.contains("1"));
-		Thread.sleep(110);
-		assertFalse(filter.contains("1"));
-	}
+    @Test
+    public void addAndLetExpire() throws Exception {
+        FilterBuilder b = new FilterBuilder(1000, 0.05);
+        ExpiringBloomFilter<String> filter = new ExpiringBloomFilter<String>(b);
+        filter.reportRead("1", fromMillis(100));
+        assertTrue(filter.isCached("1"));
+        assertFalse(filter.contains("1"));
+        filter.reportWrite("1");
+        assertTrue(filter.contains("1"));
+        Thread.sleep(110);
+        assertFalse(filter.contains("1"));
+    }
 
-	@Test
-	public void exceedCapacity() {
-		FilterBuilder b = new FilterBuilder(100, 0.05);
-		ExpiringBloomFilter<String> filter = new ExpiringBloomFilter<>(b);
+    @Test
+    public void exceedCapacity() {
+        FilterBuilder b = new FilterBuilder(100, 0.05);
+        ExpiringBloomFilter<String> filter = new ExpiringBloomFilter<>(b);
 
-		for (int i = 0; i < 200; i++) {
-			filter.reportRead(String.valueOf(i), fromMillis(1000));
-			filter.reportWrite(String.valueOf(i));
-			//System.out.println(filter.getEstimatedPopulation() + ":" + filter.getEstimatedFalsePositiveProbability());
-		}
-		//System.out.println(filter.getFalsePositiveProbability(200));
+        for (int i = 0; i < 200; i++) {
+            filter.reportRead(String.valueOf(i), fromMillis(1000));
+            filter.reportWrite(String.valueOf(i));
+            //System.out.println(filter.getEstimatedPopulation() + ":" + filter.getEstimatedFalsePositiveProbability());
+        }
+        //System.out.println(filter.getFalsePositiveProbability(200));
 
-		//fpp exceeded
-		assertTrue(filter.getEstimatedFalsePositiveProbability() > 0.05);
-		//Less then 10% difference between estimated and precise fpp
-		assertTrue(Math.abs(1 - filter.getEstimatedFalsePositiveProbability() / filter.getFalsePositiveProbability(200)) < 0.1);
-	}
+        //fpp exceeded
+        assertTrue(filter.getEstimatedFalsePositiveProbability() > 0.05);
+        //Less then 10% difference between estimated and precise fpp
+        assertTrue(Math.abs(1-filter.getEstimatedFalsePositiveProbability()/filter.getFalsePositiveProbability(200)) < 0.1);
+    }
 }

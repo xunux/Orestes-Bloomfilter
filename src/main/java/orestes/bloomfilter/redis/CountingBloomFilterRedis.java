@@ -26,230 +26,228 @@ import backport.java.util.function.Function;
  * @param <T>
  */
 public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
-	private final RedisKeys		keys;
-	private final RedisPool		pool;
-	private final RedisBitSet	bloom;
-	private final FilterBuilder	config;
+    private final RedisKeys keys;
+    private final RedisPool pool;
+    private final RedisBitSet bloom;
+    private final FilterBuilder config;
 
-	public CountingBloomFilterRedis(FilterBuilder builder) {
-		builder.complete();
-		this.keys = new RedisKeys(builder.name());
-		this.pool = new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves());
-		this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size());
-		this.config = keys.persistConfig(pool, builder);
-		if (builder.overwriteIfExists())
-			this.clear();
-	}
+    public CountingBloomFilterRedis(FilterBuilder builder) {
+        builder.complete();
+        this.keys = new RedisKeys(builder.name());
+        this.pool = new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves());
+        this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size());
+        this.config = keys.persistConfig(pool, builder);
+        if(builder.overwriteIfExists())
+            this.clear();
+    }
 
-	@Override
-	public long addAndEstimateCount(final byte[] element) {
-		List<Object> results = pool.transactionallyRetry(new Consumer<Pipeline>() {
-			@Override
-			public void accept(Pipeline p) {
+    @Override
+    public long addAndEstimateCount(final byte[] element) {
+        List<Object> results = pool.transactionallyRetry(new Consumer<Pipeline>() {
+            @Override
+            public void accept(Pipeline p) {
 
-				int[] hashes = hash(element);
-				for (int position : hashes) {
-					bloom.set(p, position, true);
-				}
-				for (int position : hashes) {
-					p.hincrBy(keys.COUNTS_KEY, encode(position), 1);
-				}
+                int[] hashes = hash(element);
+                for (int position : hashes) {
+                    bloom.set(p, position, true);
+                }
+                for (int position : hashes) {
+                    p.hincrBy(keys.COUNTS_KEY, encode(position), 1);
+                }
 
-			}
-		}, keys.BITS_KEY, keys.COUNTS_KEY);
+            }
+        }, keys.BITS_KEY, keys.COUNTS_KEY);
 
-		long min = Long.MAX_VALUE;
-		int n = 0, skip = config().hashes();
-		for (Object object : results) {
-			if (n < skip) {
-				n++;
-				continue;
-			}
-			Long l = (Long) object;
-			min = (min >= l ? l : min);
-		}
+        long min = Long.MAX_VALUE;
+        int n = 0, skip = config().hashes();
+        for (Object object : results) {
+            if (n < skip) {
+                n++;
+                continue;
+            }
+            Long l = (Long) object;
+            min = (min >= l ? l : min);
+        }
 
-		return min;
-	}
+        return min;
+    }
 
-	//TODO removeALL addAll
+    // TODO removeALL addAll
 
-	@Override
-	public boolean remove(byte[] value) {
-		return removeAndEstimateCount(value) <= 0;
-	}
+    @Override
+    public boolean remove(byte[] value) {
+        return removeAndEstimateCount(value) <= 0;
+    }
 
-	@Override
-	public long removeAndEstimateCount(final byte[] value) {
-		return pool.safelyReturn(new Function<Jedis, Long>() {
-			@Override
-			public Long apply(Jedis jedis) {
-				int[] hashes = hash(value);
-				String[] hashesString = encode(hashes);
+    @Override
+    public long removeAndEstimateCount(final byte[] value) {
+        return pool.safelyReturn(new Function<Jedis, Long>() {
+            @Override
+            public Long apply(Jedis jedis) {
+                int[] hashes = hash(value);
+                String[] hashesString = encode(hashes);
 
-				Pipeline p = jedis.pipelined();
-				p.watch(keys.COUNTS_KEY, keys.BITS_KEY);
+                Pipeline p = jedis.pipelined();
+                p.watch(keys.COUNTS_KEY, keys.BITS_KEY);
 
-				List<Long> counts;
-				List<Response<Long>> responses = new ArrayList<>(config().hashes());
-				for (String position : hashesString) {
-					responses.add(p.hincrBy(keys.COUNTS_KEY, position, -1));
-				}
-				p.sync();
+                List<Long> counts;
+                List<Response<Long>> responses = new ArrayList<>(config().hashes());
+                for (String position : hashesString) {
+                    responses.add(p.hincrBy(keys.COUNTS_KEY, position, -1));
+                }
+                p.sync();
 
-				counts = new ArrayList<Long>(responses.size());
-				for (Response<Long> r : responses) {
-					counts.add(r.get());
-				}
+                counts = new ArrayList<Long>(responses.size());
+                for (Response<Long> r : responses) {
+                    counts.add(r.get());
+                }
 
-				while (true) {
-					p = jedis.pipelined();
-					p.multi();
-					for (int i = 0; i < config().hashes(); i++) {
-						if (counts.get(i) <= 0)
-							bloom.set(p, hashes[i], false);
-					}
-					Response<List<Object>> exec = p.exec();
-					p.sync();
-					if (exec.get() == null) {
-						p = jedis.pipelined();
-						p.watch(keys.COUNTS_KEY, keys.BITS_KEY);
-						Response<List<String>> hmget = p.hmget(keys.COUNTS_KEY, hashesString);
-						p.sync();
-						counts = new ArrayList<Long>(responses.size());
-						for (String s : hmget.get()) {
-							counts.add(Long.valueOf(s));
-						}
-					} else {
-						return Collections.min(counts);
-					}
-				}
-			}
-		});
-	}
+                while (true) {
+                    p = jedis.pipelined();
+                    p.multi();
+                    for (int i = 0; i < config().hashes(); i++) {
+                        if (counts.get(i) <= 0) bloom.set(p, hashes[i], false);
+                    }
+                    Response<List<Object>> exec = p.exec();
+                    p.sync();
+                    if (exec.get() == null) {
+                        p = jedis.pipelined();
+                        p.watch(keys.COUNTS_KEY, keys.BITS_KEY);
+                        Response<List<String>> hmget = p.hmget(keys.COUNTS_KEY, hashesString);
+                        p.sync();
+                        counts = new ArrayList<Long>(responses.size());
+                        for (String s : hmget.get()) {
+                            counts.add(Long.valueOf(s));
+                        }
+                    } else {
+                        return Collections.min(counts);
+                    }
+                }
+            }
+        });
+    }
 
-	@Override
-	public long getEstimatedCount(final T element) {
-		return pool.allowingSlaves().safelyReturn(new Function<Jedis, Long>() {
-			@Override
-			public Long apply(Jedis jedis) {
-				String[] hashesString = encode(hash(toBytes(element)));
-				List<String> hmget = jedis.hmget(keys.COUNTS_KEY, hashesString);
+    @Override
+    public long getEstimatedCount(final T element) {
+        return pool.allowingSlaves().safelyReturn(new Function<Jedis, Long>() {
+            @Override
+            public Long apply(Jedis jedis) {
+                String[] hashesString = encode(hash(toBytes(element)));
+                List<String> hmget = jedis.hmget(keys.COUNTS_KEY, hashesString);
 
-				long min = Long.valueOf(hmget.get(0));
-				for (String s : hmget) {
-					Long l = Long.valueOf(s);
-					if (l < min)
-						min = l;
-				}
+                long min = Long.valueOf(hmget.get(0));
+                for (String s : hmget) {
+                    Long l = Long.valueOf(s);
+                    if (l < min) min = l;
+                }
 
-				return min;
-			}
-		});
-	}
+                return min;
+            }
+        });
+    }
 
-	@Override
-	public void clear() {
-		pool.safelyDo(new Consumer<Jedis>() {
-			@Override
-			public void accept(Jedis jedis) {
-				jedis.del(keys.COUNTS_KEY, keys.BITS_KEY);
-			}
-		});
-	}
+    @Override
+    public void clear() {
+        pool.safelyDo(new Consumer<Jedis>() {
+            @Override
+            public void accept(Jedis jedis) {
+                jedis.del(keys.COUNTS_KEY, keys.BITS_KEY);
+            }
+        });
+    }
 
-	@Override
-	public void remove() {
-		clear();
-		pool.safelyDo(new Consumer<Jedis>() {
-			@Override
-			public void accept(Jedis jedis) {
-				jedis.del(config().name());
-			}
-		});
-		pool.destroy();
-	}
+    @Override
+    public void remove() {
+        clear();
+        pool.safelyDo(new Consumer<Jedis>() {
+            @Override
+            public void accept(Jedis jedis) {
+                jedis.del(config().name());
+            }
+        });
+        pool.destroy();
+    }
 
-	@Override
-	public boolean contains(byte[] element) {
-		return bloom.isAllSet(hash(element));
-	}
+    @Override
+    public boolean contains(byte[] element) {
+        return bloom.isAllSet(hash(element));
+    }
 
-	protected RedisBitSet getRedisBitSet() {
-		return bloom;
-	}
+    protected RedisBitSet getRedisBitSet() {
+        return bloom;
+    }
 
-	@Override
-	public BitSet getBitSet() {
-		return bloom.asBitSet();
-	}
+    @Override
+    public BitSet getBitSet() {
+        return bloom.asBitSet();
+    }
 
-	@Override
-	public FilterBuilder config() {
-		return config;
-	}
+    @Override
+    public FilterBuilder config() {
+        return config;
+    }
 
-	public CountingBloomFilterMemory<T> toMemoryFilter() {
-		CountingBloomFilterMemory<T> filter = new CountingBloomFilterMemory<>(config().clone());
-		filter.getBitSet().or(getBitSet());
-		return filter;
-	}
+    public CountingBloomFilterMemory<T> toMemoryFilter() {
+        CountingBloomFilterMemory<T> filter = new CountingBloomFilterMemory<>(config().clone());
+        filter.getBitSet().or(getBitSet());
+        return filter;
+    }
 
-	@Override
-	public CountingBloomFilter<T> clone() {
-		return new CountingBloomFilterRedis<>(config().clone());
-	}
+    @Override
+    public CountingBloomFilter<T> clone() {
+        return new CountingBloomFilterRedis<>(config().clone());
+    }
 
-	@Override
-	public boolean union(BloomFilter<T> other) {
-		//TODO
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean union(BloomFilter<T> other) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean intersect(BloomFilter<T> other) {
-		//TODO
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean intersect(BloomFilter<T> other) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return bloom.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return bloom.isEmpty();
+    }
 
-	@Override
-	public Double getEstimatedPopulation() {
-		return BloomFilter.population(bloom, config());
-	}
+    @Override
+    public Double getEstimatedPopulation() {
+        return BloomFilter.population(bloom, config());
+    }
 
-	private static String encode(int value) {
-		return SafeEncoder.encode(new byte[] {
-			(byte) (value >>> 24),
-			(byte) (value >>> 16),
-			(byte) (value >>> 8),
-			(byte) value });
-	}
+    private static String encode(int value) {
+        return SafeEncoder.encode(new byte[]{
+                (byte) (value >>> 24),
+                (byte) (value >>> 16),
+                (byte) (value >>> 8),
+                (byte) value});
+    }
 
-	private static String[] encode(int[] hashes) {
-		String[] encoded = new String[hashes.length];
-		for (int i = 0; i < hashes.length; i++) {
-			encoded[i] = CountingBloomFilterRedis.encode(hashes[i]);
-		}
-		return encoded;
-	}
+    private static String[] encode(int[] hashes) {
+        String[] encoded = new String[hashes.length];
+        for (int i = 0; i < hashes.length; i++) {
+            encoded[i] = CountingBloomFilterRedis.encode(hashes[i]);
+        }
+        return encoded;
+    }
 
-	@Override
-	public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CountingBloomFilterRedis)) return false;
 
-		CountingBloomFilterRedis that = (CountingBloomFilterRedis) o;
+        CountingBloomFilterRedis that = (CountingBloomFilterRedis) o;
 
         if (bloom != null ? !bloom.equals(that.bloom) : that.bloom != null) return false;
         if (config != null ? !config.isCompatibleTo(that.config) : that.config != null) return false;
-		//TODO also checks counters
+        // TODO also checks counters
 
-		return true;
-	}
+        return true;
+    }
 
 }
