@@ -6,23 +6,25 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Graph {
-    private Map<String, Queue<String>> graph;
+	private Map<String, Queue<String>>	graph;
 
-    public Graph(Map<String, Queue<String>> graph) {
-        this.graph = graph;
-    }
+	public Graph(Map<String, Queue<String>> graph) {
+		this.graph = graph;
+	}
 
-    public void record(String key, String value) {
-        graph.computeIfAbsent(key, k -> new ConcurrentLinkedDeque<>());
-        graph.get(key).add(value);
-    }
+	public void record(String key, String value) {
+		if (graph.get(key) == null) {
+			graph.put(key, new ConcurrentLinkedDeque<String>());
+		}
+		graph.get(key).add(value);
+	}
 
-    public String generateData(String name) {
-        String result = name + ":=";
-        for(Entry<String,Queue<String>> entry : graph.entrySet()) {
+	public String generateData(String name) {
+		String result = name + ":=";
+		for (Entry<String, Queue<String>> entry : graph.entrySet()) {
 
-        }
-        return null;
-    }
+		}
+		return null;
+	}
 
 }
