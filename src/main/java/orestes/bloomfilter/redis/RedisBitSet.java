@@ -19,6 +19,7 @@ public class RedisBitSet extends BitSet {
     private final RedisPool pool;
     private String name;
     private int size;
+    private Long expireAt;
 
     /**
      * Constructs an new RedisBitSet.
@@ -30,6 +31,11 @@ public class RedisBitSet extends BitSet {
         this.pool = pool;
         this.name = name;
         this.size = size;
+    }
+    
+    public RedisBitSet(RedisPool pool, String name, int size, Long expireAt) {
+        this(pool, name, size);
+        this.expireAt = expireAt;
     }
 
     @Override
@@ -62,10 +68,11 @@ public class RedisBitSet extends BitSet {
 
     @Override
     public void set(final int bitIndex, final boolean value) {
-        pool.safelyDo(new Consumer<Jedis>() {
+        pool.transactionallyDo(new Consumer<Pipeline>() {
             @Override
-            public void accept(Jedis jedis) {
-                jedis.setbit(name, bitIndex, value);
+            public void accept(Pipeline p) {
+                p.setbit(name, bitIndex, value);
+                setExpireAt(p);
             }
         });
     }
@@ -83,6 +90,13 @@ public class RedisBitSet extends BitSet {
      */
     public void set(Pipeline p, int bitIndex, boolean value) {
         p.setbit(name, bitIndex, value);
+        setExpireAt(p);
+    }
+    
+    public void setExpireAt(Pipeline p) {
+        if(expireAt != null) {
+            p.expireAt(name, expireAt);
+        }
     }
 
     @Override
@@ -150,10 +164,11 @@ public class RedisBitSet extends BitSet {
      * @param bits a regular BitSet used to overwrite this RedisBitSet
      */
     public void overwriteBitSet(final BitSet bits) {
-        pool.safelyDo(new Consumer<Jedis>() {
+        pool.transactionallyDo(new Consumer<Pipeline>() {
             @Override
-            public void accept(Jedis jedis) {
-                jedis.set(SafeEncoder.encode(name), toByteArrayReverse(bits));
+            public void accept(Pipeline p) {
+                p.set(SafeEncoder.encode(name), toByteArrayReverse(bits));
+                setExpireAt(p);
             }
         });
     }

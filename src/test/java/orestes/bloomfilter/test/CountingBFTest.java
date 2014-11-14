@@ -128,6 +128,21 @@ public class CountingBFTest {
     }
 
     @Test
+    public void missingCounter() {
+        int n = 2;
+        double p = 0.01;
+        CountingBloomFilter<String> b = createFilter(name + "normal", n, p, HashMethod.MD5);
+        System.out.println("Size of bloom filter: " + b.getSize() + ", hash functions: " + b.getHashes());
+        assertEquals(0, b.getEstimatedCount("missing"));
+        b.add("missing");
+        b.add("or not");
+        assertEquals(1, b.getEstimatedCount("missing"));
+        b.remove("missing");
+        assertEquals(0, b.getEstimatedCount("missing"));
+        b.remove();
+    }
+
+    @Test
     public void countingBasics() {
         int n = 2;
         double p = 0.01;

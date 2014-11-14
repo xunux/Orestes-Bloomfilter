@@ -46,6 +46,9 @@ public class RedisKeys {
                         for (Entry<String, String> entry : hash.entrySet()) {
                             t.hset(builder.name(), entry.getKey(), entry.getValue());
                         }
+                        if(builder.redisExpireAt() != null) {
+                            t.expireAt(builder.name(), builder.redisExpireAt());
+                        }
                         if (t.exec() != null) {
                             newConfig = builder;
                         }

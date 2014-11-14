@@ -30,6 +30,7 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
     private final RedisPool pool;
     private final RedisBitSet bloom;
     private final FilterBuilder config;
+    private final Long expireAt;
 
     public CountingBloomFilterRedis(FilterBuilder builder) {
         builder.complete();
@@ -37,6 +38,7 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
         this.pool = new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves());
         this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size());
         this.config = keys.persistConfig(pool, builder);
+        this.expireAt = builder.redisExpireAt();
         if(builder.overwriteIfExists())
             this.clear();
     }
@@ -55,6 +57,7 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
                     p.hincrBy(keys.COUNTS_KEY, encode(position), 1);
                 }
 
+                setExpireAt(p);
             }
         }, keys.BITS_KEY, keys.COUNTS_KEY);
 
@@ -95,6 +98,7 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
                 for (String position : hashesString) {
                     responses.add(p.hincrBy(keys.COUNTS_KEY, position, -1));
                 }
+                setExpireAt(p);
                 p.sync();
 
                 counts = new ArrayList<Long>(responses.size());
@@ -126,6 +130,12 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
             }
         });
     }
+    
+    public void setExpireAt(Pipeline p) {
+        if(expireAt != null) {
+            p.expireAt(keys.COUNTS_KEY, expireAt);
+        }
+    }
 
     @Override
     public long getEstimatedCount(final T element) {
@@ -135,13 +145,14 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
                 String[] hashesString = encode(hash(toBytes(element)));
                 List<String> hmget = jedis.hmget(keys.COUNTS_KEY, hashesString);
 
-                long min = Long.valueOf(hmget.get(0));
+                Long min = null;
                 for (String s : hmget) {
+                    if(s == null) continue;
                     Long l = Long.valueOf(s);
-                    if (l < min) min = l;
+                    if (min == null || l < min) min = l;
                 }
 
-                return min;
+                return min == null ? 0 : min;
             }
         });
     }

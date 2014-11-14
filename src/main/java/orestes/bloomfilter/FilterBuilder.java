@@ -28,6 +28,7 @@ public class FilterBuilder implements Cloneable, Serializable {
     private String name = "";
     private String redisHost = "localhost";
     private Integer redisPort = 6379;
+    private Long redisExpireAt = null;
     private Integer redisConnections = 10;
     private HashMethod hashMethod = HashMethod.MD5;
     private HashFunction hashFunction = HashMethod.MD5.getHashFunction();
@@ -167,6 +168,22 @@ public class FilterBuilder implements Cloneable, Serializable {
     public FilterBuilder redisPort(int port) {
         this.redisBacked = true;
         this.redisPort = port;
+        return this;
+    }
+
+    /**
+     * Sets the expireAt value to apply to the created redis entries <p><b>Default</b>: no expiration</p>
+     *
+     * @param timestamp the unix timestamp in seconds after which the bloomfilter will expire
+     * @return the modified FilterBuilder (fluent interface)
+     */
+    public FilterBuilder redisExpireAt(long timestamp) {
+        long now = System.currentTimeMillis() / 1000;
+        if(now > timestamp) {
+            throw new IllegalArgumentException("Provided timestamp has to be future");
+        }
+        this.redisBacked = true;
+        this.redisExpireAt = timestamp;
         return this;
     }
 
@@ -365,6 +382,13 @@ public class FilterBuilder implements Cloneable, Serializable {
      */
     public int redisPort() {
         return redisPort;
+    }
+
+    /**
+     * @return the expireAt value to apply to the created redis entries
+     */
+    public Long redisExpireAt() {
+        return redisExpireAt;
     }
 
     /**
