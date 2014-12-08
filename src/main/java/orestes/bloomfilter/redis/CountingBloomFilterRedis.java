@@ -35,7 +35,7 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
     public CountingBloomFilterRedis(FilterBuilder builder) {
         builder.complete();
         this.keys = new RedisKeys(builder.name());
-        this.pool = new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves());
+        this.pool = builder.redisPool() == null ? new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves()) : builder.redisPool();
         this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size());
         this.config = keys.persistConfig(pool, builder);
         this.expireAt = builder.redisExpireAt();

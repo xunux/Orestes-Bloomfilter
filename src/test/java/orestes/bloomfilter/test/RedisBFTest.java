@@ -61,7 +61,34 @@ public class RedisBFTest {
                 .addReadSlave(Helper.host, Helper.port);
                 //.addReadSlave(Helper.host, Helper.port +1);
 
-		BloomFilter<String> filter = counts ? fb.<String> buildCountingBloomFilter() : fb.<String> buildBloomFilter();
+        BloomFilter<String> filter = counts ? fb.<String> buildCountingBloomFilter() : fb.<String> buildBloomFilter();
+
+        List<String> items = new ArrayList<String>(100);
+        for (int i = 0; i < 100; i++) {
+            String s = "obj" + String.valueOf(i);
+            items.add(s);
+            filter.add(s);
+        }
+
+        //On localhost, there is no perceivable replication lag
+        //Thread.sleep(10);
+
+        assertTrue(filter.containsAll(items));
+        for (String i : items) {
+            assertTrue(filter.contains(i));
+        }
+
+        filter.remove();
+    }
+
+    @Test
+    public void testRedisPoolRead() throws Exception {
+        int m = 1000, k = 10;
+        FilterBuilder fb = new FilterBuilder(m,k)
+                .name("redispooltest")
+                .redisPool(Helper.getPool());
+
+        BloomFilter<String> filter = counts ? fb.<String> buildCountingBloomFilter() : fb.<String> buildBloomFilter();
 
         List<String> items = new ArrayList<String>(100);
         for (int i = 0; i < 100; i++) {

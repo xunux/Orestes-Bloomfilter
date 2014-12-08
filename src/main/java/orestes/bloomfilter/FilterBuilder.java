@@ -6,6 +6,7 @@ import orestes.bloomfilter.memory.BloomFilterMemory;
 import orestes.bloomfilter.memory.CountingBloomFilterMemory;
 import orestes.bloomfilter.redis.BloomFilterRedis;
 import orestes.bloomfilter.redis.CountingBloomFilterRedis;
+import orestes.bloomfilter.redis.helper.RedisPool;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -26,6 +27,7 @@ public class FilterBuilder implements Cloneable, Serializable {
     private Integer countingBits = 16;
     private Double falsePositiveProbability;
     private String name = "";
+    private RedisPool redisPool = null;
     private String redisHost = "localhost";
     private Integer redisPort = 6379;
     private Long redisExpireAt = null;
@@ -144,6 +146,18 @@ public class FilterBuilder implements Cloneable, Serializable {
      */
     public FilterBuilder redisBacked(boolean redisBacked) {
         this.redisBacked = redisBacked;
+        return this;
+    }
+
+    /**
+     * Sets the RedisPool object so that one may create only one for multiple bloom filters
+     *
+     * @param pool an instance of RedisPool
+     * @return the modified FilterBuilder (fluent interface)
+     */
+    public FilterBuilder redisPool(RedisPool pool) {
+        this.redisBacked = true;
+        this.redisPool = pool;
         return this;
     }
 
@@ -368,6 +382,13 @@ public class FilterBuilder implements Cloneable, Serializable {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * @return the redis pool to be used with the Bloom filter
+     */
+    public RedisPool redisPool() {
+        return redisPool;
     }
 
     /**
