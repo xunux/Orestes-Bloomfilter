@@ -33,7 +33,7 @@ public class BloomFilterRedis<T> extends BloomFilter<T> {
         builder.complete();
         this.keys = new RedisKeys(builder.name());
         this.pool = builder.redisPool() == null ? new RedisPool(builder.redisHost(), builder.redisPort(), builder.redisConnections(), builder.getReadSlaves()) : builder.redisPool();
-        this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size());
+        this.bloom = new RedisBitSet(pool, keys.BITS_KEY, builder.size(), builder.redisExpireAt());
         this.config = keys.persistConfig(pool, builder);
         if (builder.overwriteIfExists())
             this.clear();
