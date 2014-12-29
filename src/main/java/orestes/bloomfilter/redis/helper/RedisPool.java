@@ -24,12 +24,12 @@ public class RedisPool {
     private List<RedisPool> slavePools;
     private Random random;
 
-    public RedisPool(String host, int port, int redisConnections) {
-        this.pool = createJedisPool(host, port, redisConnections);
+    public RedisPool(JedisPool pool) {
+        this.pool = pool;
     }
 
-    public RedisPool(String host, int port, int redisConnections, Set<Entry<String, Integer>> readSlaves) {
-        this(host, port, redisConnections);
+    public RedisPool(JedisPool pool, int redisConnections, Set<Entry<String, Integer>> readSlaves) {
+        this(pool);
         if (readSlaves != null && !readSlaves.isEmpty()) {
             slavePools = new ArrayList<>();
             random = new Random();
@@ -39,7 +39,15 @@ public class RedisPool {
         }
     }
 
-    private JedisPool createJedisPool(String host, int port, int redisConnections) {
+    public RedisPool(String host, int port, int redisConnections) {
+        this(createJedisPool(host, port, redisConnections));
+    }
+
+    public RedisPool(String host, int port, int redisConnections, Set<Entry<String, Integer>> readSlaves) {
+        this(createJedisPool(host, port, redisConnections), redisConnections, readSlaves);
+    }
+
+    private static JedisPool createJedisPool(String host, int port, int redisConnections) {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setBlockWhenExhausted(true);
         config.setMaxTotal(redisConnections);
