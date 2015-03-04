@@ -45,30 +45,26 @@ public class CountingBloomFilterRedis<T> extends CountingBloomFilter<T> {
 
     @Override
     public long addAndEstimateCount(final byte[] element) {
-        List<Object> results = pool.transactionallyRetry(new Consumer<Pipeline>() {
+        List<Response<Long>> results = pool.transactionallyRetryAndReturn(new Function<Pipeline, List<Response<Long>>>() {
             @Override
-            public void accept(Pipeline p) {
-
+            public List<Response<Long>> apply(Pipeline p) {
                 int[] hashes = hash(element);
                 for (int position : hashes) {
                     bloom.set(p, position, true);
                 }
+                List<Response<Long>> results = new ArrayList<Response<Long>>(hashes.length);
                 for (int position : hashes) {
-                    p.hincrBy(keys.COUNTS_KEY, encode(position), 1);
+                    results.add(p.hincrBy(keys.COUNTS_KEY, encode(position), 1));
                 }
 
                 setExpireAt(p);
+                return results;
             }
         }, keys.BITS_KEY, keys.COUNTS_KEY);
 
         long min = Long.MAX_VALUE;
-        int n = 0, skip = config().hashes();
-        for (Object object : results) {
-            if (n < skip) {
-                n++;
-                continue;
-            }
-            Long l = (Long) object;
+        for (Response<Long> response : results) {
+            Long l = response.get();
             min = (min >= l ? l : min);
         }
 

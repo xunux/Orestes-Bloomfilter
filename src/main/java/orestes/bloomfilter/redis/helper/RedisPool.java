@@ -105,10 +105,37 @@ public class RedisPool {
         });
     }
 
-    @SuppressWarnings("unchecked")
     public <T> List<T> transactionallyRetry(Consumer<Pipeline> f, String... watch) {
         while(true) {
             List<T> result = transactionallyDo(f, watch);
+            if(result != null)
+                return result;
+        }
+    }
+
+    public <T> T transactionallyDoAndReturn(final Function<Pipeline, T> f, final String... watch) {
+        return safelyReturn(new Function<Jedis, T>() {
+            @Override
+            public T apply(Jedis jedis) {
+                Pipeline p = jedis.pipelined();
+                if (watch.length != 0) p.watch(watch);
+                p.multi();
+                T responses = f.apply(p);
+                Response<List<Object>> exec = p.exec();
+                p.sync();
+                
+                if(exec.get() == null) { 
+                    return null; // failed
+                }
+                
+                return responses;
+            }
+        });
+    }
+
+    public <T> T transactionallyRetryAndReturn(Function<Pipeline, T> f, String... watch) {
+        while(true) {
+            T result = transactionallyDoAndReturn(f, watch);
             if(result != null)
                 return result;
         }
