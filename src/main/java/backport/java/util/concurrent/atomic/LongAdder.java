@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p> This class extends {@link Number}, but does <em>not</em> define methods such as {@code hashCode} and
  * {@code compareTo} because instances are expected to be mutated, and so are not useful as collection keys.
  * 
- * <p> <em>jsr166e note: This class is targeted to be placed in java.util.concurrent.atomic<em>
+ * <p> <em>jsr166e note: This class is targeted to be placed in java.util.concurrent.atomic</em>
  * 
  * @since 1.8
  * @author Doug Lea
