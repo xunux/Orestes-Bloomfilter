@@ -1,3 +1,5 @@
+backport.java.util.concurrent.atomic
+backport.java.util.function
 orestes.bloomfilter
 orestes.bloomfilter.cachesketch
 orestes.bloomfilter.json

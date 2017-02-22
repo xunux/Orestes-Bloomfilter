@@ -9,7 +9,8 @@ version = "1.07-port-java7"
 group = "com.baqend"
 
 repositories {
-    mavenCentral()
+	maven{ url 'http://maven.aliyun.com/nexus/content/groups/public'}
+    //mavenCentral()
 }
 
 dependencies {
